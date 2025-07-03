@@ -1,0 +1,7 @@
+food/add
+
+curl.exe -X POST http://localhost:4000/api/food/add -F "name=white chocolate brownie" -F "description=Fresh brownie!" -F "price=400" -F "category=brownie" -F "image=@ C:\Users\samjp\OneDrive\Desktop\Food-Ordering-Website-master\frontend\src\assets\cakes_dreamcake.png" -F "unit=1/2kg"
+
+http://localhost:4000/api/food/deleted
+
+68577f402c2cfe37d33c83d1

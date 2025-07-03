@@ -1,0 +1,229 @@
+/* Add this CSS to your Add.css file */
+
+.add {
+  width: 70%;
+  margin-left: 5vw;
+  margin-top: 50px;
+  color: #6d6d6d;
+  font-size: 16px;
+}
+
+.add img {
+  width: 120px;
+}
+
+.flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.add-img-upload img {
+  width: 120px;
+}
+
+.add-product-name input {
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.add-product-name input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.add-product-description textarea {
+  width: 300px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.add-product-description textarea:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.add-category-price {
+  display: flex;
+  gap: 30px;
+}
+
+.add-category select {
+  max-width: 120px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.add-category select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.add-price input {
+  max-width: 120px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.add-price input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+/* Enhanced CSS for the unit field */
+.add-unit {
+  margin-top: 20px;
+}
+
+.add-unit input {
+  max-width: 300px;
+  padding: 10px;
+  border: 1px solid #c9c9c9;
+  border-radius: 4px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.add-unit input:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.add-unit input::placeholder {
+  color: #999;
+  font-style: italic;
+}
+
+.add-unit p {
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+
+/* Enhanced button with loading state */
+.add-btn {
+  max-width: 120px;
+  border: none;
+  padding: 15px 30px;
+  background-color: #000;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 30px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  position: relative;
+  min-width: 120px;
+}
+
+.add-btn:hover:not(:disabled) {
+  background-color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.add-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.add-btn.loading {
+  background-color: #007bff;
+  cursor: not-allowed;
+}
+
+.add-btn.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  margin: auto;
+  border: 2px solid transparent;
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: button-loading-spinner 1s ease infinite;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+@keyframes button-loading-spinner {
+  from {
+    transform: translateY(-50%) rotate(0turn);
+  }
+  to {
+    transform: translateY(-50%) rotate(1turn);
+  }
+}
+
+/* Disabled form elements styling */
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Enhanced image upload area */
+.add-img-upload label {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-img-upload label:hover {
+  opacity: 0.8;
+  transform: scale(1.02);
+}
+
+.add-img-upload img {
+  border: 2px dashed #c9c9c9;
+  border-radius: 8px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.add-img-upload img:hover {
+  border-color: #007bff;
+}
+
+/* Responsive design */
+@media (max-width: 750px) {
+  .add {
+    width: 90%;
+    margin-left: 5%;
+  }
+  
+  .add-category-price {
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .add-product-name input,
+  .add-product-description textarea,
+  .add-unit input {
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .add-btn {
+    width: 100%;
+    max-width: none;
+  }
+}

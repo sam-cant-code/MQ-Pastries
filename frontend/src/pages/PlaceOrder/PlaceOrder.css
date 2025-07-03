@@ -1,0 +1,149 @@
+/* Navigation button */
+.checkout-navigation {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  padding: 0 40px;
+}
+
+.back-btn {
+  margin-top:20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.3s;
+  text-decoration: none;
+  display: inline-block;
+  background-color: #fdfaf7;
+  color: #8B4513;
+  border: 1px solid #ddd;
+}
+
+.back-btn:hover {
+  background-color: #f5f1eb;
+  border-color: #8B4513;
+}
+
+/* Root layout */
+.checkout-container {
+  background-color: white;
+  color: black;
+}
+
+.checkout-content {
+  display: flex;
+  justify-content: space-between;
+  padding: 40px;
+  background-color: white;
+  color: black;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+/* Left column */
+.checkout-left {
+  flex: 1;
+  min-width: 300px;
+}
+
+.checkout-left h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.delivery-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.delivery-form input {
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 15px;
+  outline: none;
+  color: black;
+  background-color: white;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+/* Right column */
+.checkout-right {
+  flex: 0.5;
+  min-width: 260px;
+  background-color: #fdfaf7;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 24px;
+  height: fit-content;
+}
+
+.checkout-right h2 {
+  font-size: 22px;
+  margin-bottom: 20px;
+  color: black;
+}
+
+.cart-total-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 16px;
+}
+
+.cart-total-row.total {
+  font-weight: 600;
+  margin-top: 16px;
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+}
+
+/* Button */
+.checkout-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #8B4513; /* brown */
+  color: white;
+  font-weight: bold;
+  font-size: 15px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.checkout-btn:hover {
+  background-color: #a0522d;
+}
+
+/* Responsive layout */
+@media (max-width: 768px) {
+  .checkout-navigation {
+    padding: 0 20px;
+  }
+  
+  .back-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .checkout-content {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .form-row {
+    flex-direction: column;
+  }
+}

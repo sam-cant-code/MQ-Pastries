@@ -1,0 +1,315 @@
+/* Full width override for explore menu */
+.explore-menu {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    max-width: none;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+/* Inner content container to maintain readability */
+.explore-menu-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.explore-menu h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+    text-transform: capitalize;
+}
+
+.explore-menu-text {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 50px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.6;
+}
+
+/* Container for horizontal scroll */
+.explore-menu-list-container {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 0;
+}
+
+/* Scroll Arrow Styles */
+.scroll-arrow {
+    position: absolute;
+    top: 45%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    transition: all 0.3s ease;
+    padding: 0;
+    width: auto;
+    height: auto;
+}
+
+.scroll-arrow img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+}
+
+.scroll-arrow:hover {
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow:hover img {
+    filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3)) brightness(0) saturate(100%) invert(35%) sepia(52%) saturate(1158%) hue-rotate(357deg) brightness(96%) contrast(88%);
+}
+
+.scroll-arrow:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.scroll-arrow-left {
+    left: 10px;
+}
+
+.scroll-arrow-right {
+    right: -15px;
+    z-index: 20;
+}
+
+/* Horizontal scroll list */
+.explore-menu-list {
+    display: flex;
+    gap: 30px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 10px 0 10px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    
+    /* Hide scrollbar for webkit browsers */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.explore-menu-list::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+}
+
+.explore-menu-list-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+    min-width: 280px;
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.explore-menu-list-item:hover {
+    transform: scale(1.1);
+}
+
+.explore-menu-list-item img {
+    width: 175px;
+    height: 175px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+    /* Placeholder styling for when image doesn't load */
+    background-color: #e0e0e0;
+    background-image: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    border: 2px solid #d0d0d0;
+    /* Ensure the element maintains its circular shape even without src */
+    display: block;
+    position: relative;
+}
+
+/* Add a subtle pattern or icon when image fails to load */
+.explore-menu-list-item img::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23999'%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+/* Hide the before pseudo-element when image loads successfully */
+.explore-menu-list-item img[src]:not([src=""]) {
+    background: none;
+}
+
+.explore-menu-list-item img[src]:not([src=""])::before {
+    display: none;
+}
+
+.explore-menu-list-item:hover img {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.explore-menu-list-item p {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+    text-align: center;
+    line-height: 1.4;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+/* Active state for selected category */
+.explore-menu-list-item img.active {
+    border: 4px solid #8B4513;
+    box-shadow: 0 8px 20px rgba(139, 69, 19, 0.4);
+}
+
+.explore-menu-list-item p.active {
+    color: #8B4513;
+    font-weight: 700;
+}
+
+/* Optional: Add fade effect on scroll edges */
+.explore-menu-list-container::before,
+.explore-menu-list-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 30px;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.explore-menu-list-container::before {
+    left: 0;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0.8), transparent);
+}
+
+.explore-menu-list-container::after {
+    right: 0;
+    background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .explore-menu {
+        padding: 40px 15px;
+    }
+    
+    .explore-menu h1 {
+        font-size: 2rem;
+    }
+    
+    .explore-menu-text {
+        font-size: 1rem;
+        margin-bottom: 30px;
+    }
+    
+    .explore-menu-list {
+        gap: 20px;
+        padding: 10px 0 20px 0;
+    }
+    
+    .explore-menu-list-item {
+        min-width: 130px;
+        width: 130px;
+    }
+    
+    .explore-menu-list-item img {
+        width: 110px;
+        height: 110px;
+        margin-bottom: 10px;
+    }
+    
+    .explore-menu-list-item img::before {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .explore-menu-list-item p {
+        font-size: 0.9rem;
+    }
+    
+    .explore-menu-list-container::before,
+    .explore-menu-list-container::after {
+        width: 20px;
+    }
+    
+    /* Slightly bigger arrows on mobile */
+    .scroll-arrow img {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .scroll-arrow-left {
+        left: 5px;
+    }
+    
+    .scroll-arrow-right {
+        right: -10px;
+        z-index: 20;
+    }
+}
+
+@media (max-width: 480px) {
+    .explore-menu {
+        padding: 30px 10px;
+    }
+    
+    .explore-menu h1 {
+        font-size: 1.8rem;
+    }
+    
+    .explore-menu-list {
+        gap: 15px;
+        padding: 10px 0 15px 0;
+    }
+    
+    .explore-menu-list-item {
+        min-width: 120px;
+        width: 120px;
+    }
+    
+    .explore-menu-list-item img {
+        width: 100px;
+        height: 100px;
+        margin-bottom: 8px;
+    }
+    
+    .explore-menu-list-item img::before {
+        width: 18px;
+        height: 18px;
+    }
+    
+    .explore-menu-list-item p {
+        font-size: 0.8rem;
+    }
+    
+    .explore-menu-list-container::before,
+    .explore-menu-list-container::after {
+        width: 15px;
+    }
+    
+    /* Bigger arrows on very small screens */
+    .scroll-arrow img {
+        width: 40px;
+        height: 40px;
+    }
+}

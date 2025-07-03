@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cart UI</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #fdfcfa;
+      padding: 2rem;
+      color: #333;
+    }
+
+    .cart-container {
+      max-width: 700px;
+      margin: auto;
+    }
+
+    .cart-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fff;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+      transition: transform 0.2s ease;
+    }
+
+    .cart-item:hover {
+      transform: scale(1.01);
+    }
+
+    .item-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .item-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .item-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .item-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .item-desc {
+      font-size: 0.9rem;
+      color: #777;
+    }
+
+    .item-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+
+    .quantity-control {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 4px 10px;
+    }
+
+    .quantity-btn {
+      font-size: 1rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+    }
+
+    .item-price {
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    .item-original {
+      text-decoration: line-through;
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-right: 6px;
+    }
+
+    .remove-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1.2rem;
+      color: #d9534f;
+    }
+
+    .savings {
+      font-size: 0.85rem;
+      color: #28a745;
+    }
+
+    @media (max-width: 600px) {
+      .cart-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .item-right {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="cart-container">
+    
+    <!-- Cart Item Example -->
+    <div class="cart-item">
+      <div class="item-left">
+        <img class="item-img" src="https://i.imgur.com/WP8x7kX.jpg" alt="Rose Milk Brownie">
+        <div class="item-details">
+          <div class="item-name">Rose Milk Brownie</div>
+          <div class="item-desc">Brownies | Unique rose milk flavored brownie</div>
+        </div>
+      </div>
+      <div class="item-right">
+        <div class="quantity-control">
+          <button class="quantity-btn">−</button>
+          <span>1</span>
+          <button class="quantity-btn">+</button>
+        </div>
+        <div class="item-price">
+          <span class="item-original">₹531</span>
+          ₹425
+        </div>
+        <div class="savings">(You save ₹106)</div>
+        <button class="remove-btn" title="Remove item">🗑</button>
+      </div>
+    </div>
+
+    <!-- Repeat the above cart-item div for each item with relevant data -->
+
+  </div>
+</body>
+</html>
