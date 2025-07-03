@@ -1,7 +1,7 @@
 .footer {
   background: #ffffff;
   color: #2c3e50;
-  padding: 60px 0 20px 0;
+  padding: 60px 0 0 0; /* Removed bottom padding as we'll add it to sections */
   margin-top: 80px;
   position: relative;
   overflow: hidden;
@@ -34,7 +34,7 @@
 .footer-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 20px 40px 20px; /* Added bottom padding */
   display: grid;
   grid-template-columns: 1.5fr 1fr 1fr;
   gap: 50px;
@@ -167,10 +167,61 @@
   color: #A0522D;
 }
 
+/* FSSAI Section Styles */
+.footer-fssai {
+  border-top: 1px solid #e0e0e0;
+  background: #ffffff;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.fssai-info {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.fssai-label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 14px;
+}
+
+.fssai-number {
+  color: #2c3e50;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* Copyright Section Styles */
+.footer-bottom {
+  background: #ffffff;
+  color: #6c757d;
+  padding: 15px 0;
+  text-align: center;
+  border-top: 1px solid #e0e0e0;
+}
+
+.footer-bottom p {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 400;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .footer {
-    padding: 40px 0 20px 0;
+    padding: 40px 0 0 0;
     margin-top: 60px;
   }
   
@@ -178,6 +229,7 @@
     grid-template-columns: 1fr;
     gap: 40px;
     text-align: center;
+    padding: 0 20px 30px 20px;
   }
   
   .footer-content-left {
@@ -208,16 +260,35 @@
   .footer-content-center li::before {
     display: none;
   }
+
+  .footer-fssai {
+    padding: 15px 0;
+  }
+  
+  .fssai-info {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+  
+  .fssai-label,
+  .fssai-number {
+    font-size: 12px;
+  }
+  
+  .footer-bottom p {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
   .footer {
-    padding: 30px 0 15px 0;
+    padding: 30px 0 0 0;
     margin-top: 40px;
   }
   
   .footer-content {
-    padding: 0 15px;
+    padding: 0 15px 25px 15px;
     gap: 30px;
   }
   
@@ -242,6 +313,28 @@
   .footer-content-center li,
   .footer-content-right li {
     font-size: 14px;
+  }
+
+  .footer-fssai {
+    padding: 12px 0;
+  }
+  
+  .fssai-info {
+    padding: 0 15px;
+  }
+  
+  .fssai-label,
+  .fssai-number {
+    font-size: 11px;
+  }
+  
+  .footer-bottom {
+    padding: 12px 0;
+  }
+  
+  .footer-bottom p {
+    font-size: 10px;
+    padding: 0 15px;
   }
 }
 
@@ -279,6 +372,16 @@
 
 .footer-content-right {
   animation-delay: 0.6s;
+}
+
+.footer-fssai {
+  animation: fadeInUp 0.8s ease-out;
+  animation-delay: 0.8s;
+}
+
+.footer-bottom {
+  animation: fadeInUp 0.8s ease-out;
+  animation-delay: 1s;
 }
 
 @keyframes fadeInUp {
