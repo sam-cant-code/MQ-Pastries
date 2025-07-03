@@ -21,7 +21,7 @@ const placeOrder = async (req, res) => {
         await userModel.findByIdAndUpdate(req.body.userId, { cartdata: {} });
 
         // Calculate total amount in paisa (Razorpay uses smallest currency unit)
-        const totalAmount = (req.body.amount + 50) * 100; // +2 for delivery charges, *100 for paisa
+        const totalAmount = (req.body.amount + 0) * 100; // +2 for delivery charges, *100 for paisa
 
         // Create Razorpay order
         const options = {
