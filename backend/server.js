@@ -11,9 +11,18 @@ import orderRouter from "./routes/orderRoute.js"
 const app = express()
 const port = process.env.PORT || 4000
 
-//middlware
+//middleware
 app.use(express.json())
-app.use(cors()) 
+
+// Update CORS configuration
+app.use(cors({
+    origin: [
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "https://mq-pastries-7qdw.onrender.com" // Your frontend URL
+    ],
+    credentials: true
+}))
 
 //api endpoints
 app.use("/api/food", foodRouter)
@@ -32,4 +41,3 @@ app.get("/", (req,res)=>{
 app.listen(port, ()=>{
     console.log(`Server Started on localhost:${port}`)
 })
-
