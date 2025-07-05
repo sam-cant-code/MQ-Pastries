@@ -115,7 +115,7 @@ const Checkout = () => {
   };
 
   const subtotal = getTotalCartAmount();
-  const deliveryFee = 50;
+  const deliveryFee = 0;
   const total = subtotal + deliveryFee;
 
   return (
