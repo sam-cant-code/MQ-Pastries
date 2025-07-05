@@ -982,3 +982,331 @@
   --transition: all 0.3s ease;
   --transition-fast: all 0.2s ease;
 }
+
+/* ===========================================
+   LOADING SPINNER STYLES
+   =========================================== */
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 2rem;
+}
+
+.loading-spinner {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+/* Main Spinner */
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 4px solid rgba(139, 69, 19, 0.1);
+  border-top: 4px solid var(--primary-brown);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+.spinner::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--light-brown);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  border: 2px solid transparent;
+  border-top: 2px solid var(--dark-brown);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Loading Text */
+.loading-text {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: var(--primary-brown);
+  margin: 0;
+  opacity: 0.8;
+}
+
+/* Loading Dots Animation */
+.loading-dots {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-brown);
+  animation: bounce 1.4s infinite ease-in-out;
+  opacity: 0.7;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0s;
+}
+
+/* Keyframe Animations */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Alternative Loading Styles */
+
+/* Pulsing Circle Loader */
+.loading-pulse {
+  width: 60px;
+  height: 60px;
+  background: var(--primary-brown);
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+  opacity: 0.8;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+/* Bread/Pastry Themed Loading */
+.loading-pastry {
+  font-size: 3rem;
+  animation: pastryBounce 1s ease-in-out infinite;
+}
+
+@keyframes pastryBounce {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(-5deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+/* Skeleton Loading for Food Items */
+.skeleton-loader {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 2rem 0;
+}
+
+.skeleton-item {
+  background: white;
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  box-shadow: 0 4px 15px var(--shadow-light);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeleton-image {
+  width: 100%;
+  height: 220px;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonWave 1.5s infinite;
+}
+
+.skeleton-content {
+  padding: 1.5rem;
+}
+
+.skeleton-title {
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonWave 1.5s infinite;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+}
+
+.skeleton-desc {
+  height: 14px;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonWave 1.5s infinite;
+  margin-bottom: 0.5rem;
+  border-radius: 4px;
+  width: 80%;
+}
+
+.skeleton-price {
+  height: 18px;
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonWave 1.5s infinite;
+  border-radius: 4px;
+  width: 40%;
+}
+
+@keyframes skeletonWave {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* Responsive Loading Styles */
+@media (max-width: 768px) {
+  .loading-container {
+    min-height: 50vh;
+    padding: 1rem;
+  }
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+  }
+
+  .loading-text {
+    font-size: 1rem;
+  }
+
+  .loading-dots span {
+    width: 6px;
+    height: 6px;
+  }
+
+  .skeleton-loader {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .skeleton-image {
+    height: 180px;
+  }
+
+  .skeleton-content {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-container {
+    min-height: 40vh;
+  }
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border-width: 3px;
+  }
+
+  .spinner::before,
+  .spinner::after {
+    border-width: 2px;
+  }
+
+  .loading-text {
+    font-size: 0.9rem;
+  }
+
+  .loading-dots span {
+    width: 5px;
+    height: 5px;
+  }
+
+  .skeleton-loader {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .skeleton-image {
+    height: 160px;
+  }
+}

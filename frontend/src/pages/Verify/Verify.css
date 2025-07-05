@@ -1,0 +1,22 @@
+.spinner {
+  margin: 100px auto;
+  width: 60px;
+  height: 60px;
+  border: 8px solid #d2b48c;         /* light brown */
+  border-top: 8px solid #6b3f19;     /* dark brown */
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  background: transparent;
+  display: block;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg);}
+  100% { transform: rotate(360deg);}
+}
+
+.verify-page {
+  background: #f5eee6; /* very light brown */
+  color: #6b3f19;      /* dark brown */
+  font-family: 'Segoe UI', 'Arial', sans-serif;
+}

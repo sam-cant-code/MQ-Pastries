@@ -1,6 +1,7 @@
 import orderModel from "../models/OrderModel.js";
 import userModel from "../models/userModel.js";
 import Razorpay from "razorpay";
+import crypto from "crypto"; // <-- Use ES module import
 
 const razorPay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -51,13 +52,30 @@ const placeOrder = async (req, res) => {
     }
 };
 
+const verifyOrder = async(req,res) =>{
+    const {orderId, success} = req.body;
+    try{
+        if(success=="true"){
+            await orderModel.findByIdAndUpdate(orderId, {payment:true});
+            res.json({success:true, message:"Paid"})
+        }
+        else{
+            await orderModel.findByIdAndDelete(orderId, {payment:false});
+            res.json({success:false, message:"Not Paid"})
+        }
+    }
+    catch(error){
+        console.log(error);
+        res.json({success:false, message:"Error"})
+    }
+}
+
 // Payment verification function
 const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
         
         // Verify payment signature
-        const crypto = require('crypto');
         const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET_KEY);
         hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
         const generated_signature = hmac.digest('hex');
@@ -75,4 +93,4 @@ const verifyPayment = async (req, res) => {
     }
 };
 
-export { placeOrder, verifyPayment };
+export { placeOrder, verifyPayment, verifyOrder };

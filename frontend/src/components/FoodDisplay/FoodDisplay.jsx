@@ -7,8 +7,30 @@ const FoodDisplay = ({ category }) => {
     const { pastery_list, cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
     const [showBackButton, setShowBackButton] = useState(false);
     const [toasts, setToasts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
+    // Loading messages array
+    const loadingMessages = [
+        "Loading delicious pastries...",
+        "Preparing fresh bakery items...",
+        "Almost ready to serve...",
+        "Putting finishing touches...",
+        "Your treats are coming right up..."
+    ];
+
+    // Cycle through loading messages
     // Check if user has scrolled near the bottom of the page
+    useEffect(() => {
+        if (isLoading) {
+            const interval = setInterval(() => {
+                setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
+            }, 5000); // Change message every 5 seconds
+
+            return () => clearInterval(interval);
+        }
+    }, [isLoading, loadingMessages.length]);
+
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -25,10 +47,20 @@ const FoodDisplay = ({ category }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-    // Show loading message if pastery_list is missing or empty
-    if (!pastery_list || !Array.isArray(pastery_list) || pastery_list.length === 0) {
-        return <div className='food-display'>Loading food...</div>;
-    }
+    // Handle loading state
+    useEffect(() => {
+        if (pastery_list && Array.isArray(pastery_list) && pastery_list.length > 0) {
+            // Add a small delay to show the loading animation
+            const timer = setTimeout(() => {
+                setIsLoading(false);
+                setLoadingMessageIndex(0); // Reset message index when done loading
+            }, 500);
+            
+            return () => clearTimeout(timer);
+        } else {
+            setIsLoading(true);
+        }
+    }, [pastery_list]);
 
     // Enhanced toast message function with slide-in animation
     const showToast = (message, type = 'success') => {
@@ -100,6 +132,29 @@ const FoodDisplay = ({ category }) => {
         }
     }
 
+    // Loading component - only dots, no spinner
+    const LoadingComponent = () => (
+        <div className="loading-container">
+            <div className="loading-spinner">
+                <div className="loading-text">{loadingMessages[loadingMessageIndex]}</div>
+                <div className="loading-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </div>
+    );
+
+    // Show loading if still loading or if pastery_list is missing/empty
+    if (isLoading || !pastery_list || !Array.isArray(pastery_list) || pastery_list.length === 0) {
+        return (
+            <div className='food-display' id='food-display'>
+                <LoadingComponent />
+            </div>
+        );
+    }
+
     return (
         <div className='food-display' id='food-display'>
             {/* Toast Container - Bottom Right */}
@@ -143,8 +198,6 @@ const FoodDisplay = ({ category }) => {
                                 ? item.image
                                 : `${url}/images/${item.image.replace(/^\/+/, '')}`
                             : '';
-                        // console.log('item.image:', item.image);
-                        // console.log('img src:', imgSrc);
 
                         return (
                             <div key={item._id || index} className='food-item'>
