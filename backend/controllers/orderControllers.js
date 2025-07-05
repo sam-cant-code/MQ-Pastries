@@ -93,8 +93,5 @@ const verifyPayment = async (req, res) => {
     }
 };
 
-<<<<<<< HEAD
 export { placeOrder, verifyPayment, verifyOrder };
-=======
 export { placeOrder, verifyPayment };
->>>>>>> 53e1e0417ca4a2bc9d172aca2880206fb28562df
