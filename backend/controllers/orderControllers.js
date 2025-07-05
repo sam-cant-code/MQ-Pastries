@@ -1,7 +1,7 @@
 import orderModel from "../models/OrderModel.js";
 import userModel from "../models/userModel.js";
 import Razorpay from "razorpay";
-import crypto from "crypto"; // <-- Use ES module import
+import crypto from "crypto";
 
 const razorPay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID,
@@ -21,12 +21,10 @@ const placeOrder = async (req, res) => {
         await newOrder.save();
         await userModel.findByIdAndUpdate(req.body.userId, { cartdata: {} });
 
-        // Calculate total amount in paisa (Razorpay uses smallest currency unit)
-        const totalAmount = (req.body.amount + 0) * 100; // +2 for delivery charges, *100 for paisa
+        const totalAmount = req.body.amount * 100;
 
-        // Create Razorpay order
         const options = {
-            amount: totalAmount, // amount in paisa
+            amount: totalAmount,
             currency: "INR",
             receipt: `order_${newOrder._id}`,
             notes: {
@@ -60,7 +58,7 @@ const verifyOrder = async(req,res) =>{
             res.json({success:true, message:"Paid"})
         }
         else{
-            await orderModel.findByIdAndDelete(orderId, {payment:false});
+            await orderModel.findByIdAndDelete(orderId);
             res.json({success:false, message:"Not Paid"})
         }
     }
@@ -70,18 +68,15 @@ const verifyOrder = async(req,res) =>{
     }
 }
 
-// Payment verification function
 const verifyPayment = async (req, res) => {
     try {
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature, orderId } = req.body;
         
-        // Verify payment signature
         const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_SECRET_KEY);
         hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
         const generated_signature = hmac.digest('hex');
 
         if (generated_signature === razorpay_signature) {
-            // Payment is verified, update order status
             await orderModel.findByIdAndUpdate(orderId, { payment: true });
             res.json({ success: true, message: "Payment verified successfully" });
         } else {
@@ -94,4 +89,3 @@ const verifyPayment = async (req, res) => {
 };
 
 export { placeOrder, verifyPayment, verifyOrder };
-export { placeOrder, verifyPayment };
