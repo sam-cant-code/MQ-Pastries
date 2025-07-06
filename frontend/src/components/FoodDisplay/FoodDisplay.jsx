@@ -3,14 +3,12 @@ import './FoodDisplay.css'
 import { StoreContext } from '../../context/StoreContext'
 
 const FoodDisplay = ({ category }) => {
-    // Always call hooks first!
     const { pastery_list, cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
     const [showBackButton, setShowBackButton] = useState(false);
     const [toasts, setToasts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
 
-    // Loading messages array
     const loadingMessages = [
         "Loading delicious pastries...",
         "Preparing fresh bakery items...",
@@ -20,17 +18,17 @@ const FoodDisplay = ({ category }) => {
     ];
 
     // Cycle through loading messages
-    // Check if user has scrolled near the bottom of the page
     useEffect(() => {
         if (isLoading) {
             const interval = setInterval(() => {
                 setLoadingMessageIndex(prev => (prev + 1) % loadingMessages.length);
-            }, 5000); // Change message every 5 seconds
+            }, 5000);
 
             return () => clearInterval(interval);
         }
     }, [isLoading, loadingMessages.length]);
 
+    // Show back button when near bottom of page
     useEffect(() => {
         const handleScroll = () => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
@@ -50,10 +48,9 @@ const FoodDisplay = ({ category }) => {
     // Handle loading state
     useEffect(() => {
         if (pastery_list && Array.isArray(pastery_list) && pastery_list.length > 0) {
-            // Add a small delay to show the loading animation
             const timer = setTimeout(() => {
                 setIsLoading(false);
-                setLoadingMessageIndex(0); // Reset message index when done loading
+                setLoadingMessageIndex(0);
             }, 500);
             
             return () => clearTimeout(timer);
@@ -62,27 +59,24 @@ const FoodDisplay = ({ category }) => {
         }
     }, [pastery_list]);
 
-    // Enhanced toast message function with slide-in animation
+    // Show toast message
     const showToast = (message, type = 'success') => {
         const id = Date.now();
         const newToast = { id, message, type, isVisible: false };
 
         setToasts(prev => [...prev, newToast]);
 
-        // Trigger slide-in animation after a brief delay
         setTimeout(() => {
             setToasts(prev => prev.map(toast =>
                 toast.id === id ? { ...toast, isVisible: true } : toast
             ));
         }, 100);
 
-        // Auto remove toast after 3 seconds
         setTimeout(() => {
             setToasts(prev => prev.map(toast =>
                 toast.id === id ? { ...toast, isVisible: false } : toast
             ));
 
-            // Remove from DOM after animation completes
             setTimeout(() => {
                 setToasts(prev => prev.filter(toast => toast.id !== id));
             }, 300);
@@ -100,19 +94,19 @@ const FoodDisplay = ({ category }) => {
         }, 300);
     };
 
-    // Enhanced add to cart with toast
+    // Add to cart with toast
     const handleAddToCart = (itemId, itemName) => {
         addToCart(itemId);
         showToast(`${itemName} added to cart!`, 'success');
     };
 
-    // Enhanced remove from cart with toast
+    // Remove from cart with toast
     const handleRemoveFromCart = (itemId, itemName) => {
         removeFromCart(itemId);
         showToast(`${itemName} removed from cart!`, 'info');
     };
 
-    // Function to get display title based on category
+    // Get display title based on category
     const getDisplayTitle = () => {
         if (category === "all") {
             return "All Pastries";
@@ -120,7 +114,7 @@ const FoodDisplay = ({ category }) => {
         return category.charAt(0).toUpperCase() + category.slice(1);
     }
 
-    // Function to scroll back to menu
+    // Scroll back to menu
     const scrollToMenu = () => {
         const menuSection = document.getElementById('explore-menu');
         if (menuSection) {
@@ -132,7 +126,7 @@ const FoodDisplay = ({ category }) => {
         }
     }
 
-    // Loading component - only dots, no spinner
+    // Loading component
     const LoadingComponent = () => (
         <div className="loading-container">
             <div className="loading-spinner">
@@ -146,7 +140,6 @@ const FoodDisplay = ({ category }) => {
         </div>
     );
 
-    // Show loading if still loading or if pastery_list is missing/empty
     if (isLoading || !pastery_list || !Array.isArray(pastery_list) || pastery_list.length === 0) {
         return (
             <div className='food-display' id='food-display'>
@@ -157,7 +150,7 @@ const FoodDisplay = ({ category }) => {
 
     return (
         <div className='food-display' id='food-display'>
-            {/* Toast Container - Bottom Right */}
+            {/* Toast Container */}
             <div className="toast-container-bottom">
                 {toasts.map(toast => (
                     <div
@@ -186,13 +179,8 @@ const FoodDisplay = ({ category }) => {
             <div className='food-display-list'>
                 {pastery_list.map((item, index) => {
                     if (category === "all" || category === item.category) {
-                        if (!item._id) {
-                            console.warn(`Item at index ${index} missing _id:`, item);
-                        }
-                        
                         const currentCount = cartItems[item._id] || 0;
 
-                        // Compute image src and log for debugging
                         const imgSrc = item.image
                             ? item.image.startsWith('http')
                                 ? item.image

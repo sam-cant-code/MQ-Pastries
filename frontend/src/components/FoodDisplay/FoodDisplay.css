@@ -1277,6 +1277,11 @@
 }
 
 @media (max-width: 480px) {
+  .food-item-image{
+    width:10px;
+    height:10px;
+  }
+
   .loading-container {
     min-height: 40vh;
   }

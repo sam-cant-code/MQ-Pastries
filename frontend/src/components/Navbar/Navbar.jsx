@@ -181,7 +181,7 @@ const Navbar = ({ setShowLogin }) => {
                   
                   <div className="dropdown-divider" role="separator"></div>
                   
-                  <Link to="/orders" className="dropdown-item" role="menuitem">
+                  <Link to="/myorders" className="dropdown-item" role="menuitem">
                     <img src={assets.bag_icon} alt="" className="dropdown-icon" />
                     <span>Orders</span>
                   </Link>
