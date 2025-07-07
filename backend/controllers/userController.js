@@ -2,6 +2,7 @@ import userModel from "../models/userModel.js";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 import validator from "validator"
+import transporter from "../config/nodemailer.js";
 
 //login user
 const loginUser = async (req, res) => {
@@ -71,5 +72,79 @@ const registerUser = async (req, res) => {
     }
 };
 
+const sendResetOtp = async (req,res) => {
+    const {email} = req.body
 
-export {loginUser, registerUser}
+    if(!email){
+        return res.json({success:false, message:"email is required"})
+    }
+
+    try {
+
+        const user = await userModel.findOne({email});
+        if(!user){
+            return res.json({success:false, message:"user not found"});
+        }
+
+        const otp = String(Math.floor(100000+Math.random()*(900000)))
+
+        user.resetOtp = otp;
+        user.resetOtpExpire = Date.now() + 5 * 50 * 1000
+
+        await user.save()
+
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: email,
+            subject: 'Your MQ Pastries Password Reset OTP',
+            text: `Your OTP for password reset is: ${otp}. It is valid for 5 minutes.`
+        }
+        
+        await transporter.sendMail(mailOptions);
+
+        return res.json({success:true, message:"otp sent to mail successfuly!"});
+
+
+    } catch (error) {
+        return res.json({success:false, message:error.message});
+    }
+}
+
+const resetPassword = async (req,res)=>{
+
+    const {email, otp, newPassword} = req.body;
+        
+    if(!email || !otp || !newPassword){
+        return res.json({success:false, message:'email, otp, and new password Required'})
+    }
+
+    try {
+       const user = await userModel.findOne({email});
+       if(!user){
+            return res.json({success:false, message:"user not found"});
+       }
+
+       if(user.resetOtp === null || user.resetOtp !== otp){
+            return res.json({success:false, message:"invalid otp"});
+       }
+
+       if(user.resetOtpExpire < Date.now()){
+            return res.json({success:false, message:"otp has expired"});
+       }
+
+       const hashedPassword = await bcrypt.hash(newPassword, 10);
+       user.password = hashedPassword;
+       user.resetOtp = null;
+       user.resetOtpExpire = null;
+
+       await user.save();
+
+       res.json({success:true, message:"password has been changed successfully!"})
+
+    } catch (error) {
+        res.json({success:false, message:error.message})
+    }
+}
+
+
+export {loginUser, registerUser, resetPassword, sendResetOtp}

@@ -11,18 +11,19 @@ import orderRouter from "./routes/orderRoute.js"
 const app = express()
 const port = process.env.PORT || 4000
 
-//middleware
-app.use(express.json())
-
-// Update CORS configuration
+//middleware - CORS MUST come FIRST
 app.use(cors({
     origin: [
         "http://localhost:3000",
         "http://localhost:5173",
         "https://mq-pastries-7qdw.onrender.com" // Your frontend URL
     ],
-    credentials: true
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'token']
 }))
+
+app.use(express.json())
 
 //api endpoints
 app.use("/api/food", foodRouter)
@@ -35,7 +36,7 @@ app.use("/api/order", orderRouter)
 connectDB()
 
 app.get("/", (req,res)=>{
-    res.send("dflaksjdlfajd;lfja;ldjkfa;l")
+    res.send("API Working")
 })
 
 app.listen(port, ()=>{
