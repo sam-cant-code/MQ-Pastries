@@ -124,9 +124,9 @@ const Navbar = ({ setShowLogin }) => {
         {/* Right Side Actions */}
         <div className="navbar-actions">
           {/* Search Icon */}
-          <button className="navbar-icon-button" aria-label="Search">
+          {/* <button className="navbar-icon-button" aria-label="Search">
             <img src={assets.search_icon} alt="" className="navbar-icon" />
-          </button>
+          </button> */}
 
           {/* Cart Icon - ✅ Added onClick handler */}
           <div className="cart-container">
