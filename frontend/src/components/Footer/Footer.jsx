@@ -17,8 +17,14 @@ const Footer = () => {
               >
                 <img src={assets.instagram_icon} alt="Instagram" />
               </a>
-              <img src={assets.youtube_icon} alt="YouTube" />
-              </div>
+              <a
+                href="https://www.youtube.com/@mq-bangalorediaries"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img src={assets.youtube_icon} alt="Youtube" />
+              </a>
+            </div>
         </div>
         <div className="footer-content-center">
           <h2>MQ PASTRIES</h2>

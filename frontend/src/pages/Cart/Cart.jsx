@@ -131,7 +131,6 @@ const Cart = () => {
                               </button>
                             </div>
                             <div className="price-section">
-                              <div className="item-price">₹{Math.round(item.price * 1.25)}</div>
                               <div className="item-total">₹{item.price * cartItems[item._id]}</div>
                             </div>
                           </div>

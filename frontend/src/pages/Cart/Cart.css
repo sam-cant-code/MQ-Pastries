@@ -181,16 +181,9 @@ body {
   gap: 4px;
 }
 
-.item-price {
-  font-size: 14px;
-  color: #666666;
-  text-decoration: line-through;
-  font-weight: 400;
-}
-
 .item-total {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 18px;
   color: #000000;
 }
 
@@ -450,6 +443,10 @@ body {
   .empty-cart-message p {
     font-size: 18px;
   }
+
+  .item-total {
+    font-size: 16px;
+  }
 }
 
 /* --- EXTRA SMALL DEVICES --- */
@@ -505,6 +502,10 @@ body {
     padding: 12px 16px;
     font-size: 13px;
     border-radius: 10px;
+  }
+
+  .item-total {
+    font-size: 15px;
   }
 }
 
