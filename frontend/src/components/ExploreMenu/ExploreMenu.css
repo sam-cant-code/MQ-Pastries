@@ -228,15 +228,20 @@
     background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
 }
 
-/* Search bar styles */
+/* Search bar styles - Updated with narrower width and left alignment */
 .search-bar-container {
-    margin: 20px ;
+    margin: 20px 0;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    margin-left: 10px;
+    align-items: flex-start; /* Changed from center to flex-start for left alignment */
+    margin-left: 140px; /* Consistent with your other left margins */
     margin-right: 30px;
-    max-width: 43opx
+    max-width: 400px; /* Reduced from 430px to make it narrower */
+}
+
+.search-bar {
+    width: 100%;
+    max-width: 350px; /* Add max-width to control the search bar width */
 }
 
 .search-input-wrapper {
@@ -249,6 +254,7 @@
     padding: 0 15px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Full width of the container */
 }
 
 .search-input-wrapper:focus-within {
@@ -264,6 +270,7 @@
     font-size: 16px;
     background: transparent;
     color: #333;
+    width: 100%; /* Ensure it takes full width of wrapper */
 }
 
 .search-input::placeholder {
@@ -274,8 +281,8 @@
 .search-icon {
     position: absolute;
     right: 15px;
-    font-size: 14px;     /* reduce font size */
-    width: 16px;          /* control size */
+    font-size: 14px;
+    width: 16px;
     height: 16px;
     color: #666;
     pointer-events: none;
@@ -283,7 +290,6 @@
     align-items: center;
     justify-content: center;
 }
-
 
 .clear-search-btn {
     position: absolute;
@@ -313,6 +319,7 @@
     font-size: 10px;
     margin: 0;
     font-style: italic;
+    align-self: flex-start; /* Keep search results text left-aligned */
 }
 
 /* Style category items when searching */
@@ -458,6 +465,17 @@
         right: -10px;
         z-index: 20;
     }
+    
+    /* Search bar responsive adjustments */
+    .search-bar-container {
+        margin-left: 15px;
+        margin-right: 15px;
+        max-width: 300px; /* Narrower on mobile */
+    }
+    
+    .search-bar {
+        max-width: 280px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -505,5 +523,21 @@
     .scroll-arrow img {
         width: 40px;
         height: 40px;
+    }
+    
+    /* Search bar responsive adjustments for very small screens */
+    .search-bar-container {
+        margin-left: 20px;
+        margin-right: 10px;
+        max-width: 250px; /* Even narrower on very small screens */
+    }
+    
+    .search-bar {
+        max-width: 230px;
+        margin-left: 10px;
+    }
+    
+    .search-input {
+        font-size: 14px; /* Slightly smaller text on very small screens */
     }
 }

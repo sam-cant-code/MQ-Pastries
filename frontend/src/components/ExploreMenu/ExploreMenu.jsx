@@ -138,11 +138,7 @@ const ExploreMenu = () => {
             )}
           </div>
         </div>
-        {searchQuery && (
-          <p className="search-results-text">
-            Searching for "{searchQuery}"
-          </p>
-        )}
+        
       </div>
 
       <div className="explore-menu-list-container">
