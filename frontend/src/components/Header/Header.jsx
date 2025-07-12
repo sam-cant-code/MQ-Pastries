@@ -18,7 +18,7 @@ const Header = () => {
       <div className="header-contents">
         <h2>Welcome to MQ Pastries!</h2>
         <p>Order your favourite items from the menu below</p>
-        <button onClick={scrollToMenu}>View Menu</button>
+        <button onClick={scrollToMenu}>View Menu &gt;</button>
       </div>
     </div>
   )

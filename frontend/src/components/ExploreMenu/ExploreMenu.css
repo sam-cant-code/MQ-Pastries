@@ -3,7 +3,7 @@
     width: 100vw;
     margin-left: calc(-50vw + 50%);
     max-width: none;
-    padding: 60px 20px;
+    padding: 50px 0px 0px 20px; /* Removed bottom padding */
     text-align: center;
 }
 
@@ -35,7 +35,8 @@
 .explore-menu-list-container {
     position: relative;
     overflow: hidden;
-    padding: 20px 0;
+    padding: 0; /* Removed all padding */
+    margin-left: 20px; /* Move container to the right on all devices */
 }
 
 /* Scroll Arrow Styles */
@@ -85,23 +86,22 @@
 /* Horizontal scroll list */
 .explore-menu-list {
     display: flex;
-    gap: 0px; /* Reduced from 2px to 0px - no gap at all */
+    gap: 0px;
     overflow-x: auto;
     overflow-y: hidden;
-    padding: 10px 0 10px 0;
+    padding: 0; /* Removed all padding */
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     
     /* Hide scrollbar for webkit browsers */
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
-    /* margin-left:80px; */
 }
 
 /* Desktop-only left margin - applies to screens larger than 768px */
 @media (min-width: 769px) {
     .explore-menu-list {
-        margin-left: 140px;
+        margin-left: 150px;
     }
 }
 
@@ -115,20 +115,20 @@
     align-items: center;
     cursor: pointer;
     transition: transform 0.3s ease;
-    min-width: 200px; /* Reduced from 280px to 200px */
-    width: 200px; /* Reduced from 280px to 200px */
+    min-width: 200px;
+    width: 200px;
     flex-shrink: 0;
 }
 
 .explore-menu-list-item:hover {
-    transform: scale(1.1);
+    transform: scale(1.01);
 }
 
 .explore-menu-list-item img {
     width: 175px;
     height: 175px;
     object-fit: cover;
-    border-radius: 50%;
+    border-radius: 25%;
     margin-bottom: 15px;
     transition: all 0.3s ease;
     /* Placeholder styling for when image doesn't load */
@@ -138,6 +138,19 @@
     /* Ensure the element maintains its circular shape even without src */
     display: block;
     position: relative;
+}
+
+/* Desktop-only smaller image icons - applies to screens larger than 768px */
+@media (min-width: 769px) {
+    .explore-menu-list-item img {
+        width: 140px;
+        height: 140px;
+    }
+    
+    .explore-menu-list-item img::before {
+        width: 45px;
+        height: 45px;
+    }
 }
 
 /* Add a subtle pattern or icon when image fails to load */
@@ -215,10 +228,181 @@
     background: linear-gradient(to left, rgba(255, 255, 255, 0.8), transparent);
 }
 
+/* Search bar styles */
+.search-bar-container {
+    margin: 20px ;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-left: 10px;
+    margin-right: 30px;
+    max-width: 43opx
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 25px;
+    padding: 0 15px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.search-input-wrapper:focus-within {
+    border-color: #ff6b6b;
+    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.2);
+}
+
+.search-input {
+    flex: 1;
+    padding: 10px 40px 10px 15px;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: transparent;
+    color: #333;
+}
+
+.search-input::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+.search-icon {
+    position: absolute;
+    right: 15px;
+    font-size: 14px;     /* reduce font size */
+    width: 16px;          /* control size */
+    height: 16px;
+    color: #666;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.clear-search-btn {
+    position: absolute;
+    right: 45px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #999;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.clear-search-btn:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.search-results-text {
+    color: #666;
+    font-size: 10px;
+    margin: 0;
+    font-style: italic;
+}
+
+/* Style category items when searching */
+.explore-menu-list-item.search-active {
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+}
+
+.explore-menu-list-item.search-active:hover {
+    opacity: 1;
+}
+
+/* Food display styles */
+.food-display-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.food-display-header h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.search-results-count {
+    color: #666;
+    font-size: 14px;
+    margin: 0;
+    font-style: italic;
+}
+
+.no-results {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 40px 20px;
+}
+
+.no-results-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.no-results-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.no-results-content h3 {
+    color: #333;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
+.no-results-content p {
+    color: #666;
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.error-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+    padding: 40px 20px;
+}
+
+.error-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 20px;
+}
+
+.error-content h3 {
+    color: #d32f2f;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .explore-menu {
-        padding: 40px 15px;
+        padding: 40px 15px 0px 15px; /* Removed bottom padding */
     }
     
     .explore-menu h1 {
@@ -231,13 +415,13 @@
     }
     
     .explore-menu-list {
-        gap: 0px; /* Reduced from 2px to 0px - no gap at all */
-        padding: 10px 0 20px 0;
+        gap: 0px;
+        padding: 0; /* Removed all padding */
     }
     
     .explore-menu-list-item {
-        min-width: 100px; /* Reduced from 130px to 100px */
-        width: 100px; /* Reduced from 130px to 100px */
+        min-width: 85px; /* Reduced from 100px */
+        width: 85px; /* Reduced from 100px */
     }
     
     .explore-menu-list-item img {
@@ -278,7 +462,7 @@
 
 @media (max-width: 480px) {
     .explore-menu {
-        padding: 30px 0px;
+        padding: 30px 0px 0px 0px; /* Removed all padding except top */
     }
     
     .explore-menu h1 {
@@ -286,22 +470,21 @@
     }
     
     .explore-menu-list {
-        gap: 0px; /* Reduced from 2px to 0px - no gap at all */
-        padding: 0px 0 0px 0;
+        gap: 0px;
+        padding: 0; /* Removed all padding */
         margin-right: 20px;
     }
     
     .explore-menu-list-item {
-        min-width: 90px; /* Reduced from 120px to 90px */
-        width: 90px; /* Reduced from 120px to 90px */
-        margin-left:20px;
+        min-width: 70px; /* Reduced from 90px */
+        width: 70px; /* Reduced from 90px */
+        margin-left: 15px; /* Reduced from 20px */
     }
     
     .explore-menu-list-item img {
         width: 75px;
         height: 75px;
         margin-bottom: 8px;
-        
     }
     
     .explore-menu-list-item img::before {

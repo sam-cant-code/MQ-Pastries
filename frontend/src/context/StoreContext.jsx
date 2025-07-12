@@ -29,6 +29,10 @@ const StoreContextProvider = (props) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // 🔍 Search and filter states - NEW
+    const [searchQuery, setSearchQuery] = useState("");
+    const [category, setCategory] = useState("all");
+
     // 🔄 Fetch food list from backend
     const fetchFoodList = async () => {
         try {
@@ -107,6 +111,8 @@ const StoreContextProvider = (props) => {
         setToken("");
         setUserName("");
         setCartItems({});
+        setSearchQuery(""); // Clear search on logout
+        setCategory("all"); // Reset category on logout
         localStorage.removeItem("token");
         localStorage.removeItem("userName");
         localStorage.removeItem("cartItems"); // Clear cart from localStorage too
@@ -188,6 +194,30 @@ const StoreContextProvider = (props) => {
         await fetchFoodList();
     };
 
+    // 🔍 Search and filter functions - NEW
+    const getFilteredItems = () => {
+        if (!pastery_list || !Array.isArray(pastery_list)) return [];
+
+        return pastery_list.filter((item) => {
+            // Category filter
+            const matchesCategory = category === "all" || category === item.category;
+            
+            // Search filter
+            const matchesSearch = !searchQuery || 
+                item.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                item.category?.toLowerCase().includes(searchQuery.toLowerCase());
+            
+            return matchesCategory && matchesSearch;
+        });
+    };
+
+    // Clear search function
+    const clearSearch = () => {
+        setSearchQuery("");
+        setCategory("all");
+    };
+
     const contextValue = {
         pastery_list,
         cartItems,
@@ -211,7 +241,14 @@ const StoreContextProvider = (props) => {
         error,
         refreshFoodList,
         fetchFoodList,
-        fetchCartList
+        fetchCartList,
+        // 🔍 Search and filter properties - NEW
+        searchQuery,
+        setSearchQuery,
+        category,
+        setCategory,
+        getFilteredItems,
+        clearSearch
     };
 
     return (

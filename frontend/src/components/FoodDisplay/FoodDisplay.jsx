@@ -1,9 +1,23 @@
 import React, { useContext, useState, useEffect } from 'react'
 import './FoodDisplay.css'
 import { StoreContext } from '../../context/StoreContext'
+import { assets } from '../../assets/assets'
 
-const FoodDisplay = ({ category }) => {
-    const { pastery_list, cartItems, addToCart, removeFromCart, url } = useContext(StoreContext);
+
+const FoodDisplay = () => {
+    const { 
+        pastery_list, 
+        cartItems, 
+        addToCart, 
+        removeFromCart, 
+        url,
+        searchQuery,
+        category,
+        getFilteredItems,
+        loading,
+        error
+    } = useContext(StoreContext);
+
     const [showBackButton, setShowBackButton] = useState(false);
     const [toasts, setToasts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -12,7 +26,6 @@ const FoodDisplay = ({ category }) => {
     const loadingMessages = [
         "Loading delicious pastries...",
         "Preparing fresh bakery items...",
-        "Almost ready to serve...",
         "Putting finishing touches...",
         "Your treats are coming right up..."
     ];
@@ -54,10 +67,10 @@ const FoodDisplay = ({ category }) => {
             }, 500);
             
             return () => clearTimeout(timer);
-        } else {
-            setIsLoading(true);
+        } else if (!loading) {
+            setIsLoading(false);
         }
-    }, [pastery_list]);
+    }, [pastery_list, loading]);
 
     // Show toast message
     const showToast = (message, type = 'success') => {
@@ -106,8 +119,11 @@ const FoodDisplay = ({ category }) => {
         showToast(`${itemName} removed from cart!`, 'info');
     };
 
-    // Get display title based on category
+    // Get display title based on category and search
     const getDisplayTitle = () => {
+        if (searchQuery) {
+            return `Search Results for "${searchQuery}"`;
+        }
         if (category === "all") {
             return "All Pastries";
         }
@@ -140,13 +156,37 @@ const FoodDisplay = ({ category }) => {
         </div>
     );
 
-    if (isLoading || !pastery_list || !Array.isArray(pastery_list) || pastery_list.length === 0) {
+    // Error component
+    const ErrorComponent = () => (
+        <div className="error-container">
+            <div className="error-content">
+                <div className="error-icon">⚠️</div>
+                <h3>Something went wrong</h3>
+                <p>{error}</p>
+                <button onClick={() => window.location.reload()} className="retry-btn">
+                    Try Again
+                </button>
+            </div>
+        </div>
+    );
+
+    if (isLoading || loading) {
         return (
             <div className='food-display' id='food-display'>
                 <LoadingComponent />
             </div>
         );
     }
+
+    if (error) {
+        return (
+            <div className='food-display' id='food-display'>
+                <ErrorComponent />
+            </div>
+        );
+    }
+
+    const filteredItems = getFilteredItems();
 
     return (
         <div className='food-display' id='food-display'>
@@ -175,10 +215,29 @@ const FoodDisplay = ({ category }) => {
 
             <div className="food-display-header">
                 <h2>{getDisplayTitle()}</h2>
+                {searchQuery && (
+                    <p className="search-results-count">
+                        {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''} found
+                    </p>
+                )}
             </div>
-            <div className='food-display-list'>
-                {pastery_list.map((item, index) => {
-                    if (category === "all" || category === item.category) {
+
+            {filteredItems.length === 0 ? (
+                <div className="no-results">
+                    <div className="no-results-content">
+                        {/* <div className="no-results-icon"><img src={assets.search_icon} alt="" /></div> */}
+                        <h3>No items found</h3>
+                        <p>
+                            {searchQuery 
+                                ? `No pastries match "${searchQuery}". Try a different search term.`
+                                : "No items available in this category."
+                            }
+                        </p>
+                    </div>
+                </div>
+            ) : (
+                <div className='food-display-list'>
+                    {filteredItems.map((item, index) => {
                         const currentCount = cartItems[item._id] || 0;
 
                         const imgSrc = item.image
@@ -230,10 +289,9 @@ const FoodDisplay = ({ category }) => {
                                 </div>
                             </div>
                         )
-                    }
-                    return null;
-                })}
-            </div>
+                    })}
+                </div>
+            )}
 
             <button
                 className={`back-button-scroll ${showBackButton ? 'show' : ''}`}

@@ -336,7 +336,17 @@
 }
 
 .dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 12px 16px;
+}
+
+.dropdown-header img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .username {
@@ -345,6 +355,9 @@
   font-weight: var(--font-weight-semibold);
   color: var(--color-black);
 }
+
+
+
 
 .dropdown-divider {
   height: 1px;

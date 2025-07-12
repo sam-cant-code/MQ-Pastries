@@ -24,10 +24,7 @@ const Navbar = ({ setShowLogin }) => {
   } = useContext(StoreContext);
 
   const cartItemCount = useMemo(() => getTotalCartItems(), [getTotalCartItems]);
-  const displayName = useMemo(() => 
-    userName?.split(' ')[0] || 'User', 
-    [userName]
-  );
+  const displayName = userName || 'User';
 
   const scrollToSection = useCallback((sectionId) => {
     if (location.pathname !== '/') {
@@ -176,7 +173,7 @@ const Navbar = ({ setShowLogin }) => {
                   aria-label="Profile menu"
                 >
                   <div className="dropdown-header">
-                    <p className="username">Hi, {displayName}</p>
+                    <img src={assets.profile_icon} alt="" /><p className="username">{displayName}</p>
                   </div>
                   
                   <div className="dropdown-divider" role="separator"></div>
