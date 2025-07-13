@@ -3,7 +3,6 @@ import './FoodDisplay.css'
 import { StoreContext } from '../../context/StoreContext'
 import { assets } from '../../assets/assets'
 
-
 const FoodDisplay = () => {
     const { 
         pastery_list, 
@@ -22,6 +21,8 @@ const FoodDisplay = () => {
     const [toasts, setToasts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+    // New state for selected variations
+    const [selectedVariations, setSelectedVariations] = useState({});
 
     const loadingMessages = [
         "Loading delicious pastries...",
@@ -29,6 +30,21 @@ const FoodDisplay = () => {
         "Putting finishing touches...",
         "Your treats are coming right up..."
     ];
+
+    // Initialize selected variations when items load
+    useEffect(() => {
+        if (pastery_list && Array.isArray(pastery_list) && pastery_list.length > 0) {
+            const initialVariations = {};
+            pastery_list.forEach(item => {
+                if (item.variations && Object.keys(item.variations).length > 0) {
+                    // Set first variation as default
+                    const firstVariation = Object.keys(item.variations)[0];
+                    initialVariations[item._id] = firstVariation;
+                }
+            });
+            setSelectedVariations(initialVariations);
+        }
+    }, [pastery_list]);
 
     // Cycle through loading messages
     useEffect(() => {
@@ -72,6 +88,41 @@ const FoodDisplay = () => {
         }
     }, [pastery_list, loading]);
 
+    // Handle variation selection
+    const handleVariationChange = (itemId, variationKey) => {
+        setSelectedVariations(prev => ({
+            ...prev,
+            [itemId]: variationKey
+        }));
+    };
+
+    // Get current price for an item based on selected variation
+    const getCurrentPrice = (item) => {
+        if (item.variations && Object.keys(item.variations).length > 0) {
+            const selectedVariation = selectedVariations[item._id];
+            if (selectedVariation && item.variations[selectedVariation] !== undefined) {
+                return item.variations[selectedVariation];
+            }
+            // Fallback to first variation if no selection
+            const firstVariation = Object.keys(item.variations)[0];
+            return item.variations[firstVariation];
+        }
+        return item.price || 0;
+    };
+
+    // Get current variation label
+    const getCurrentVariationLabel = (item) => {
+        if (item.variations && Object.keys(item.variations).length > 0) {
+            const selectedVariation = selectedVariations[item._id];
+            if (selectedVariation) {
+                return selectedVariation;
+            }
+            // Fallback to first variation
+            return Object.keys(item.variations)[0];
+        }
+        return item.unit || "per unit";
+    };
+
     // Show toast message
     const showToast = (message, type = 'success') => {
         const id = Date.now();
@@ -107,16 +158,19 @@ const FoodDisplay = () => {
         }, 300);
     };
 
-    // Add to cart with toast
-    const handleAddToCart = (itemId, itemName) => {
-        addToCart(itemId);
-        showToast(`${itemName} added to cart!`, 'success');
+    // Add to cart with toast (include variation info)
+    const handleAddToCart = (itemId, itemName, variationKey) => {
+        // You might want to modify your addToCart function to handle variations
+        addToCart(itemId, variationKey);
+        const variationLabel = variationKey ? ` (${variationKey})` : '';
+        showToast(`${itemName}${variationLabel} added to cart!`, 'success');
     };
 
     // Remove from cart with toast
-    const handleRemoveFromCart = (itemId, itemName) => {
-        removeFromCart(itemId);
-        showToast(`${itemName} removed from cart!`, 'info');
+    const handleRemoveFromCart = (itemId, itemName, variationKey) => {
+        removeFromCart(itemId, variationKey);
+        const variationLabel = variationKey ? ` (${variationKey})` : '';
+        showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
     };
 
     // Get display title based on category and search
@@ -225,7 +279,6 @@ const FoodDisplay = () => {
             {filteredItems.length === 0 ? (
                 <div className="no-results">
                     <div className="no-results-content">
-                        {/* <div className="no-results-icon"><img src={assets.search_icon} alt="" /></div> */}
                         <h3>No items found</h3>
                         <p>
                             {searchQuery 
@@ -238,7 +291,13 @@ const FoodDisplay = () => {
             ) : (
                 <div className='food-display-list'>
                     {filteredItems.map((item, index) => {
-                        const currentCount = cartItems[item._id] || 0;
+                        const currentVariation = selectedVariations[item._id] || 
+                                               (item.variations && Object.keys(item.variations).length > 0 ? 
+                                                Object.keys(item.variations)[0] : null);
+                        
+                        // Create unique cart key for item + variation
+                        const cartKey = currentVariation ? `${item._id}_${currentVariation}` : item._id;
+                        const currentCount = cartItems[cartKey] || 0;
 
                         const imgSrc = item.image
                             ? item.image.startsWith('http')
@@ -257,22 +316,22 @@ const FoodDisplay = () => {
                                     />
                                     {
                                         currentCount === 0 ? (
-                                            <div className='add' onClick={() => handleAddToCart(item._id, item.name)}>
+                                            <div className='add' onClick={() => handleAddToCart(item._id, item.name, currentVariation)}>
                                                 Add +
                                             </div>
                                         ) : (
                                             <div className='food-item-counter'>
                                                 <div
-                                                    onClick={() => {
-                                                        if (currentCount > 0) handleRemoveFromCart(item._id, item.name);
-                                                    }}
-                                                    className={currentCount === 1 ? 'disabled' : ''}
-                                                    style={{ opacity: currentCount === 0 ? 0.5 : 1, pointerEvents: currentCount === 0 ? 'none' : 'auto' }}
+                                                    onClick={() => handleRemoveFromCart(item._id, item.name, currentVariation)}
+                                                    className='counter-btn minus-btn'
                                                 >
                                                     −
                                                 </div>
                                                 <p>{currentCount}</p>
-                                                <div onClick={() => handleAddToCart(item._id, item.name)}>
+                                                <div 
+                                                    onClick={() => handleAddToCart(item._id, item.name, currentVariation)}
+                                                    className='counter-btn plus-btn'
+                                                >
                                                     +
                                                 </div>
                                             </div>
@@ -284,8 +343,30 @@ const FoodDisplay = () => {
                                         <p>{item.name || 'Unknown Item'}</p>
                                     </div>
                                     <p className='food-item-desc'>{item.description || 'No description'}</p>
-                                    <p className='food-item-price'>₹{item.price || 0}</p>
-                                    <p className='food-item-unit'>{item.unit || " per unit"}</p>
+                                    
+                                    {/* Variations Dropdown */}
+                                    {item.variations && Object.keys(item.variations).length > 0 && (
+                                        <div className='variations-container'>
+                                            <select 
+                                                className='variations-dropdown'
+                                                value={selectedVariations[item._id] || Object.keys(item.variations)[0]}
+                                                onChange={(e) => handleVariationChange(item._id, e.target.value)}
+                                            >
+                                                {Object.entries(item.variations).map(([key, price]) => (
+                                                    <option key={key} value={key}>
+                                                        {key}
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                    
+                                    <div className='price-container'>
+                                        <p className='food-item-price'>₹{getCurrentPrice(item)}</p>
+                                        {!item.variations && (
+                                            <p className='food-item-unit'>{item.unit || "per unit"}</p>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         )

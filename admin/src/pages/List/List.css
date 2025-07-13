@@ -191,6 +191,15 @@
   display: inline-block;
 }
 
+.item-variations {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.9rem;
+  color: #5d4037;
+}
+
 .item-price {
   font-weight: 600;
   color: #8b4513;
@@ -313,6 +322,7 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
+  overflow-y: auto;
 }
 
 .form-group {
@@ -334,7 +344,8 @@
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
   width: 100%;
   padding: 0.6rem;
   border: 2px solid #f5deb3;
@@ -346,7 +357,8 @@
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
   outline: none;
   border-color: #8b4513;
   background: white;
@@ -363,6 +375,76 @@
   font-size: 0.85rem;
   margin-top: 0.25rem;
   display: block;
+}
+
+/* Variations Section */
+.variations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.variations-header label {
+  margin-bottom: 0;
+}
+
+.add-variation-btn-small {
+  background: #8b4513;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.8rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+}
+
+.add-variation-btn-small:hover {
+  background: #a0522d;
+}
+
+.edit-variation-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem;
+  background: #fdf6e3;
+  border-radius: 6px;
+  border: 1px solid #f5deb3;
+}
+
+.edit-variation-row input {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.edit-variation-row input:first-child {
+  max-width: 120px;
+}
+
+.edit-variation-row input:nth-child(2) {
+  max-width: 100px;
+}
+
+.remove-variation-btn-small {
+  background: #cd853f;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.remove-variation-btn-small:hover {
+  background: #a0522d;
 }
 
 /* Form Actions */
@@ -499,6 +581,21 @@
     max-height: calc(100vh - 1rem);
   }
   
+  .edit-variation-row {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  
+  .edit-variation-row input {
+    max-width: none;
+  }
+  
+  .variations-header {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
   .form-actions {
     flex-direction: column;
   }
@@ -511,4 +608,61 @@
     width: 90vw;
     left: 5vw;
   }
+}
+
+/* Additional enhancements for better UX */
+.edit-modal-overlay {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.edit-modal {
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Focus states for better accessibility */
+.edit-btn:focus,
+.remove-btn:focus,
+.refresh-btn:focus,
+.refresh-btn-small:focus {
+  outline: 2px solid #8b4513;
+  outline-offset: 2px;
+}
+
+/* Improved scrollbar for modal content */
+.edit-form::-webkit-scrollbar {
+  width: 6px;
+}
+
+.edit-form::-webkit-scrollbar-track {
+  background: #f5deb3;
+  border-radius: 3px;
+}
+
+.edit-form::-webkit-scrollbar-thumb {
+  background: #8b4513;
+  border-radius: 3px;
+}
+
+.edit-form::-webkit-scrollbar-thumb:hover {
+  background: #a0522d;
 }

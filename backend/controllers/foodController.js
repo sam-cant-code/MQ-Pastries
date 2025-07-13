@@ -3,6 +3,9 @@ import fs from 'fs';
 
 // Add food item
 const addFood = async (req, res) => {
+  // console.log("🧾 Full req.body:", req.body);
+  
+
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: "No image uploaded" });
@@ -10,13 +13,54 @@ const addFood = async (req, res) => {
 
     const image_filename = req.file.filename;
 
+    // Parse variations from request body
+    // Expected format: { "Small": 10, "Medium": 15, "Large": 20 } or JSON string
+    let variations;
+    if (typeof req.body.variations === 'string') {
+      try {
+        variations = JSON.parse(req.body.variations);
+      } catch (parseError) {
+        return res.status(400).json({ 
+          success: false, 
+          message: "Invalid variations format. Expected JSON object." 
+        });
+      }
+    } else if (typeof req.body.variations === 'object') {
+      variations = req.body.variations;
+    } else {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Variations field is required and must be an object." 
+      });
+    }
+
+    // Validate that variations is not empty and contains valid price values
+    if (!variations || Object.keys(variations).length === 0) {
+      return res.status(400).json({ 
+        success: false, 
+        message: "At least one variation must be provided." 
+      });
+    }
+
+    // Convert variations to Map and validate prices
+    const variationsMap = new Map();
+    for (const [key, value] of Object.entries(variations)) {
+      const price = Number(value);
+      if (isNaN(price) || price < 0) {
+        return res.status(400).json({ 
+          success: false, 
+          message: `Invalid price for variation "${key}". Must be a non-negative number.` 
+        });
+      }
+      variationsMap.set(key, price);
+    }
+
     const food = new FoodModel({
       name: req.body.name,
       description: req.body.description,
-      price: req.body.price,
       image: image_filename,
       category: req.body.category,
-      unit: req.body.unit,
+      variations: variationsMap,
     });
 
     await food.save();
@@ -32,7 +76,18 @@ const addFood = async (req, res) => {
 const listFood = async (req, res) => {
   try {
     const foods = await FoodModel.find();
-    res.json({ success: true, data: foods });
+    
+    // Convert Map to Object for JSON serialization
+    const foodsWithVariations = foods.map(food => {
+      const foodObj = food.toObject();
+      if (foodObj.variations) {
+        // Convert Map to plain object for JSON response
+        foodObj.variations = Object.fromEntries(foodObj.variations);
+      }
+      return foodObj;
+    });
+
+    res.json({ success: true, data: foodsWithVariations });
   } catch (error) {
     console.error("❌ Error fetching food list:", error);
     res.status(500).json({ success: false, message: "Failed to fetch food items" });
@@ -41,6 +96,8 @@ const listFood = async (req, res) => {
 
 // Edit/Update food item
 const editFood = async (req, res) => {
+    console.log("🧾 Full req.body:", req.body);
+
   try {
     console.log("📝 Edit request body:", req.body);
     console.log("📁 File info:", req.file);
@@ -63,10 +120,49 @@ const editFood = async (req, res) => {
     const updateData = {
       name: req.body.name || food.name,
       description: req.body.description || food.description,
-      price: req.body.price || food.price,
       category: req.body.category || food.category,
-      unit: req.body.unit || food.unit,
     };
+
+    // Handle variations update
+    if (req.body.variations) {
+      let variations;
+      if (typeof req.body.variations === 'string') {
+        try {
+          variations = JSON.parse(req.body.variations);
+        } catch (parseError) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "Invalid variations format. Expected JSON object." 
+          });
+        }
+      } else if (typeof req.body.variations === 'object') {
+        variations = req.body.variations;
+      }
+
+      if (variations) {
+        // Validate that variations is not empty and contains valid price values
+        if (Object.keys(variations).length === 0) {
+          return res.status(400).json({ 
+            success: false, 
+            message: "At least one variation must be provided." 
+          });
+        }
+
+        // Convert variations to Map and validate prices
+        const variationsMap = new Map();
+        for (const [key, value] of Object.entries(variations)) {
+          const price = Number(value);
+          if (isNaN(price) || price < 0) {
+            return res.status(400).json({ 
+              success: false, 
+              message: `Invalid price for variation "${key}". Must be a non-negative number.` 
+            });
+          }
+          variationsMap.set(key, price);
+        }
+        updateData.variations = variationsMap;
+      }
+    }
 
     // Handle image update if new image is provided
     if (req.file) {
@@ -93,8 +189,14 @@ const editFood = async (req, res) => {
       { new: true } // Return the updated document
     );
 
-    console.log("✅ Food item updated:", updatedFood);
-    res.json({ success: true, message: "Food Updated", data: updatedFood });
+    // Convert Map to Object for JSON response
+    const updatedFoodObj = updatedFood.toObject();
+    if (updatedFoodObj.variations) {
+      updatedFoodObj.variations = Object.fromEntries(updatedFoodObj.variations);
+    }
+
+    console.log("✅ Food item updated:", updatedFoodObj);
+    res.json({ success: true, message: "Food Updated", data: updatedFoodObj });
 
   } catch (error) {
     console.error("🔥 Unhandled error in editFood:", error);

@@ -118,42 +118,92 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem("cartItems"); // Clear cart from localStorage too
     };
 
-    // 🛒 Cart management functions
-    const addToCart = async (itemId) => {
+    // 🛒 Helper function to create cart key
+    const createCartKey = (itemId, variationKey = null) => {
+        return variationKey ? `${itemId}_${variationKey}` : itemId;
+    };
+
+    // 🛒 Helper function to parse cart key
+    const parseCartKey = (cartKey) => {
+        if (cartKey.includes('_')) {
+            const [itemId, variationKey] = cartKey.split('_');
+            return { itemId, variationKey };
+        }
+        return { itemId: cartKey, variationKey: null };
+    };
+
+    // 🛒 Get item price for specific variation
+    const getItemPrice = (itemId, variationKey = null) => {
+        const item = pastery_list.find(product => product._id === itemId);
+        if (!item) return 0;
+        
+        if (variationKey && item.variations && item.variations[variationKey] !== undefined) {
+            return item.variations[variationKey];
+        }
+        
+        return item.price || 0;
+    };
+
+    // 🛒 Updated cart management functions with variation support
+    const addToCart = async (itemId, variationKey = null) => {
+        const cartKey = createCartKey(itemId, variationKey);
+        
         setCartItems((prev) => ({
             ...prev,
-            [itemId]: (prev[itemId] || 0) + 1
+            [cartKey]: (prev[cartKey] || 0) + 1
         }));
+        
         if(token){
-            await axios.post(url+"/api/cart/add", {itemId}, {headers:{token}})
+            // You may need to update your backend API to handle variations
+            await axios.post(url+"/api/cart/add", {
+                itemId, 
+                variationKey,
+                cartKey
+            }, {headers:{token}})
         }
     };
 
-    const removeFromCart = async (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: prev[itemId] - 1 }));
-        if(token){
-            await axios.post(url+"/api/cart/remove", {itemId}, {headers:{token}})
-        }
-    };
-
-    // ✅ Added missing decreaseQuantity function
-    const decreaseQuantity = async (itemId) => {
+    const removeFromCart = async (itemId, variationKey = null) => {
+        const cartKey = createCartKey(itemId, variationKey);
+        
         setCartItems((prev) => {
-            const currentQuantity = prev[itemId] || 0;
+            const { [cartKey]: removed, ...rest } = prev;
+            return rest;
+        });
+        
+        if(token){
+            await axios.post(url+"/api/cart/remove", {
+                itemId,
+                variationKey,
+                cartKey
+            }, {headers:{token}})
+        }
+    };
+
+    // ✅ Updated decreaseQuantity function with variation support
+    const decreaseQuantity = async (itemId, variationKey = null) => {
+        const cartKey = createCartKey(itemId, variationKey);
+        
+        setCartItems((prev) => {
+            const currentQuantity = prev[cartKey] || 0;
             if (currentQuantity <= 1) {
                 // Remove item completely if quantity would become 0 or less
-                const { [itemId]: removed, ...rest } = prev;
+                const { [cartKey]: removed, ...rest } = prev;
                 return rest;
             }
             return {
                 ...prev,
-                [itemId]: currentQuantity - 1
+                [cartKey]: currentQuantity - 1
             };
         });
         
         // Sync with server if logged in
         if(token){
-            await axios.post(url+"/api/cart/remove", {itemId}, {headers:{token}})
+            await axios.post(url+"/api/cart/decrease", {
+                itemId,
+                variationKey,
+                cartKey
+            }, {headers:{token}})
         }
     };
 
@@ -162,17 +212,16 @@ const StoreContextProvider = (props) => {
         setCartItems({});
     };
 
-    // 💰 Calculate total cart amount
+    // 💰 Updated calculate total cart amount with variation support
     const getTotalCartAmount = () => {
         let totalAmount = 0;
         if (!pastery_list || !Array.isArray(pastery_list)) return totalAmount;
 
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
-                let itemInfo = pastery_list.find((product) => product._id === item);
-                if (itemInfo) {
-                    totalAmount += itemInfo.price * cartItems[item];
-                }
+        for (const cartKey in cartItems) {
+            if (cartItems[cartKey] > 0) {
+                const { itemId, variationKey } = parseCartKey(cartKey);
+                const itemPrice = getItemPrice(itemId, variationKey);
+                totalAmount += itemPrice * cartItems[cartKey];
             }
         }
         return totalAmount;
@@ -181,12 +230,37 @@ const StoreContextProvider = (props) => {
     // 🔢 Calculate total cart items
     const getTotalCartItems = () => {
         let totalItems = 0;
-        for (const item in cartItems) {
-            if (cartItems[item] > 0) {
-                totalItems += cartItems[item];
+        for (const cartKey in cartItems) {
+            if (cartItems[cartKey] > 0) {
+                totalItems += cartItems[cartKey];
             }
         }
         return totalItems;
+    };
+
+    // 🛒 Get cart items with their details (including variations)
+    const getCartItemsWithDetails = () => {
+        const cartItemsArray = [];
+        
+        for (const cartKey in cartItems) {
+            if (cartItems[cartKey] > 0) {
+                const { itemId, variationKey } = parseCartKey(cartKey);
+                const item = pastery_list.find(product => product._id === itemId);
+                
+                if (item) {
+                    cartItemsArray.push({
+                        ...item,
+                        cartKey,
+                        quantity: cartItems[cartKey],
+                        variationKey,
+                        currentPrice: getItemPrice(itemId, variationKey),
+                        totalPrice: getItemPrice(itemId, variationKey) * cartItems[cartKey]
+                    });
+                }
+            }
+        }
+        
+        return cartItemsArray;
     };
 
     // 🔄 Function to refresh product list (useful after adding new products)
@@ -228,6 +302,7 @@ const StoreContextProvider = (props) => {
         clearCart,
         getTotalCartAmount,
         getTotalCartItems,
+        getCartItemsWithDetails,
         url,
         token,
         setToken,
@@ -248,7 +323,11 @@ const StoreContextProvider = (props) => {
         category,
         setCategory,
         getFilteredItems,
-        clearSearch
+        clearSearch,
+        // 🛒 New variation helper functions
+        createCartKey,
+        parseCartKey,
+        getItemPrice
     };
 
     return (

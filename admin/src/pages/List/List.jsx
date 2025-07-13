@@ -11,9 +11,8 @@ const List = () => {
   const [editForm, setEditForm] = useState({
     name: '',
     description: '',
-    price: '',
     category: '',
-    unit: '',
+    variations: [{ size: '', price: '' }],
     image: null
   });
   const [isInitialLoad, setIsInitialLoad] = useState(true);
@@ -84,15 +83,19 @@ const List = () => {
 
   const startEdit = (item) => {
     setEditingItem(item._id);
+    
+    // Convert variations object to array format for editing
+    const variationsArray = item.variations ? 
+      Object.entries(item.variations).map(([size, price]) => ({ size, price: price.toString() })) :
+      [{ size: '', price: '' }];
+    
     setEditForm({
       name: item.name,
       description: item.description,
-      price: item.price,
       category: item.category,
-      unit: item.unit,
+      variations: variationsArray,
       image: null // Reset image field
     });
-    // Removed toast for starting edit to reduce noise
   }
 
   const cancelEdit = () => {
@@ -100,12 +103,10 @@ const List = () => {
     setEditForm({
       name: '',
       description: '',
-      price: '',
       category: '',
-      unit: '',
+      variations: [{ size: '', price: '' }],
       image: null
     });
-    // Removed toast for canceling edit to reduce noise
   }
 
   const handleEditSubmit = async (e) => {
@@ -113,14 +114,36 @@ const List = () => {
     
     const itemName = editForm.name || 'item';
     
+    // Validate variations
+    const validVariations = {};
+    let hasValidVariation = false;
+
+    for (let i = 0; i < editForm.variations.length; i++) {
+      const variation = editForm.variations[i];
+      
+      if (variation.size.trim() && variation.price) {
+        const price = Number(variation.price);
+        if (isNaN(price) || price <= 0) {
+          toast.error(`Invalid price for variation "${variation.size}". Must be a positive number.`);
+          return;
+        }
+        validVariations[variation.size.trim()] = price;
+        hasValidVariation = true;
+      }
+    }
+
+    if (!hasValidVariation) {
+      toast.error("Please add at least one valid variation with size and price");
+      return;
+    }
+    
     try {
       const formData = new FormData();
       formData.append('id', editingItem);
       formData.append('name', editForm.name);
       formData.append('description', editForm.description);
-      formData.append('price', editForm.price);
       formData.append('category', editForm.category);
-      formData.append('unit', editForm.unit);
+      formData.append('variations', JSON.stringify(validVariations));
       
       if (editForm.image) {
         formData.append('image', editForm.image);
@@ -139,9 +162,8 @@ const List = () => {
         setEditForm({
           name: '',
           description: '',
-          price: '',
           category: '',
-          unit: '',
+          variations: [{ size: '', price: '' }],
           image: null
         });
         await fetchList(); // Refresh the list without toast
@@ -170,6 +192,32 @@ const List = () => {
     }));
   }
 
+  const handleVariationChange = (index, field, value) => {
+    const newVariations = [...editForm.variations];
+    newVariations[index][field] = value;
+    setEditForm(prev => ({
+      ...prev,
+      variations: newVariations
+    }));
+  }
+
+  const addVariation = () => {
+    setEditForm(prev => ({
+      ...prev,
+      variations: [...prev.variations, { size: '', price: '' }]
+    }));
+  }
+
+  const removeVariation = (index) => {
+    if (editForm.variations.length > 1) {
+      const newVariations = editForm.variations.filter((_, i) => i !== index);
+      setEditForm(prev => ({
+        ...prev,
+        variations: newVariations
+      }));
+    }
+  }
+
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -192,6 +240,17 @@ const List = () => {
       ...prev,
       image: file
     }));
+  }
+
+  // Helper function to format variations for display
+  const formatVariations = (variations) => {
+    if (!variations || Object.keys(variations).length === 0) {
+      return 'No variations';
+    }
+    
+    return Object.entries(variations)
+      .map(([size, price]) => `${size}: ₹${price}`)
+      .join(', ');
   }
 
   useEffect(() => {
@@ -234,8 +293,7 @@ const List = () => {
                 <th>Name</th>
                 <th>Description</th>
                 <th>Category</th>
-                <th>Price</th>
-                <th>Unit</th>
+                <th>Variations</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -258,8 +316,9 @@ const List = () => {
                     {item.description}
                   </td>
                   <td className="item-category">{item.category}</td>
-                  <td className="item-price">₹{item.price}</td>
-                  <td className="item-unit">{item.unit}</td>
+                  <td className="item-variations" title={formatVariations(item.variations)}>
+                    {formatVariations(item.variations)}
+                  </td>
                   <td className="actions-cell">
                     <button 
                       className="edit-btn"
@@ -320,44 +379,62 @@ const List = () => {
                 />
               </div>
 
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Price: *</label>
-                  <input
-                    type="number"
-                    name="price"
-                    value={editForm.price}
-                    onChange={handleInputChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    placeholder="0.00"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Category: *</label>
-                  <input
-                    type="text"
-                    name="category"
-                    value={editForm.category}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="e.g., Appetizer, Main Course"
-                  />
-                </div>
-              </div>
-
               <div className="form-group">
-                <label>Unit: *</label>
-                <input
-                  type="text"
-                  name="unit"
-                  value={editForm.unit}
+                <label>Category: *</label>
+                <select
+                  name="category"
+                  value={editForm.category}
                   onChange={handleInputChange}
                   required
-                  placeholder="e.g., piece, kg, liter"
-                />
+                >
+                  <option value="Brownies">Brownies</option>
+                  <option value="Cakes">Cakes</option>
+                  <option value="Fried Treats">Fried Treats</option>
+                  <option value="Cookies">Cookies</option>
+                  <option value="Speciality Sweets">Speciality Sweets</option>
+                </select>
+              </div>
+
+              {/* Variations Section */}
+              <div className="form-group">
+                <div className="variations-header">
+                  <label>Variations (Size & Price): *</label>
+                  <button 
+                    type="button" 
+                    onClick={addVariation}
+                    className="add-variation-btn-small"
+                  >
+                    + Add
+                  </button>
+                </div>
+                
+                {editForm.variations.map((variation, index) => (
+                  <div key={index} className="edit-variation-row">
+                    <input
+                      type="text"
+                      placeholder="Size"
+                      value={variation.size}
+                      onChange={(e) => handleVariationChange(index, 'size', e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      placeholder="Price"
+                      value={variation.price}
+                      onChange={(e) => handleVariationChange(index, 'price', e.target.value)}
+                      min="0"
+                      step="0.01"
+                    />
+                    {editForm.variations.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeVariation(index)}
+                        className="remove-variation-btn-small"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
 
               <div className="form-group">
@@ -386,4 +463,4 @@ const List = () => {
   )
 }
 
-export default List 
+export default List

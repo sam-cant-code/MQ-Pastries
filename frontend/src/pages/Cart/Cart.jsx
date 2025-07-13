@@ -52,23 +52,67 @@ const Cart = () => {
     navigate('/');
   };
 
-  const handleRemoveFromCart = (id, name) => {
-    removeFromCart(id);
-    showToast(`${name} removed from cart!`, 'info');
+  const handleRemoveFromCart = (cartKey, itemName, variationKey) => {
+    removeFromCart(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
+    const variationLabel = variationKey ? ` (${variationKey})` : '';
+    showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
   };
 
-  const handleAddToCart = (id, name) => {
-    addToCart(id);
-    showToast(`${name} added to cart!`, 'success');
+  const handleAddToCart = (cartKey, itemName, variationKey) => {
+    addToCart(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
+    const variationLabel = variationKey ? ` (${variationKey})` : '';
+    showToast(`${itemName}${variationLabel} added to cart!`, 'success');
   };
 
-  const handleDecreaseQuantity = (id, name) => {
-    decreaseQuantity(id);
-    showToast(`Decreased quantity of ${name}`, 'info');
+  const handleDecreaseQuantity = (cartKey, itemName, variationKey) => {
+    decreaseQuantity(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
+    const variationLabel = variationKey ? ` (${variationKey})` : '';
+    showToast(`Decreased quantity of ${itemName}${variationLabel}`, 'info');
   };
 
-  const isCartEmpty = Object.keys(cartItems).length === 0 ||
-    Object.values(cartItems).every(quantity => quantity === 0);
+  // Helper function to get price for a specific variation
+  const getVariationPrice = (item, variationKey) => {
+    if (item.variations && variationKey && item.variations[variationKey] !== undefined) {
+      return item.variations[variationKey];
+    }
+    return item.price || 0;
+  };
+
+  // Helper function to parse cart key and get variation info
+  const parseCartKey = (cartKey) => {
+    if (cartKey.includes('_')) {
+      const [itemId, variationKey] = cartKey.split('_');
+      return { itemId, variationKey };
+    }
+    return { itemId: cartKey, variationKey: null };
+  };
+
+  // Get all cart items with their variations
+  const getCartItemsWithVariations = () => {
+    const cartItemsArray = [];
+    
+    Object.entries(cartItems).forEach(([cartKey, quantity]) => {
+      if (quantity > 0) {
+        const { itemId, variationKey } = parseCartKey(cartKey);
+        const item = pastery_list.find(item => item._id === itemId);
+        
+        if (item) {
+          cartItemsArray.push({
+            ...item,
+            cartKey,
+            quantity,
+            variationKey,
+            currentPrice: getVariationPrice(item, variationKey)
+          });
+        }
+      }
+    });
+    
+    return cartItemsArray;
+  };
+
+  const cartItemsWithVariations = getCartItemsWithVariations();
+  const isCartEmpty = cartItemsWithVariations.length === 0;
 
   return (
     <div className="cart">
@@ -85,6 +129,7 @@ const Cart = () => {
           </div>
         ))}
       </div>
+      
       <div className="cart-container">
         <div className="cart-items-section">
           {isCartEmpty ? (
@@ -95,63 +140,68 @@ const Cart = () => {
               </button>
             </div>
           ) : (
-            pastery_list.map((item, index) => {
-              if (cartItems[item._id] > 0) {
-                const imgSrc = item.image
-                  ? item.image.startsWith('http')
-                    ? item.image
-                    : `${url}/images/${item.image.replace(/^\/+/, '')}`
-                  : '';
-                return (
-                  <div key={index} className="cart-item-row">
-                    <div className="item-content">
-                      <div className="item-image">
-                        <img src={imgSrc} alt={item.name} />
+            cartItemsWithVariations.map((cartItem, index) => {
+              const imgSrc = cartItem.image
+                ? cartItem.image.startsWith('http')
+                  ? cartItem.image
+                  : `${url}/images/${cartItem.image.replace(/^\/+/, '')}`
+                : '';
+
+              return (
+                <div key={`${cartItem.cartKey}-${index}`} className="cart-item-row">
+                  <div className="item-content">
+                    <div className="item-image">
+                      <img src={imgSrc} alt={cartItem.name} />
+                    </div>
+                    <div className="item-details">
+                      <div className="item-title">{cartItem.name}</div>
+                      <div className="item-subtitle">
+                        {cartItem.category || "Regular"} | {cartItem.description || "New Hand Tossed"}
+                        {cartItem.variationKey && (
+                          <span className="variation-label"> | {cartItem.variationKey}</span>
+                        )}
                       </div>
-                      <div className="item-details">
-                        <div className="item-title">{item.name}</div>
-                        <div className="item-subtitle">
-                          {item.category || "Regular"} | {item.description || "New Hand Tossed"}
-                        </div>
-                        <div className="item-controls">
-                          <div className="quantity-price-section">
-                            <div className="quantity-toggle">
-                              <button
-                                className="qty-btn"
-                                onClick={() => handleDecreaseQuantity(item._id, item.name)}
-                              >
-                                −
-                              </button>
-                              <span>{cartItems[item._id]}</span>
-                              <button
-                                className="qty-btn"
-                                onClick={() => handleAddToCart(item._id, item.name)}
-                              >
-                                +
-                              </button>
-                            </div>
-                            <div className="price-section">
-                              <div className="item-total">₹{item.price * cartItems[item._id]}</div>
-                            </div>
-                          </div>
-                          <div className="item-remove">
+                      <div className="item-controls">
+                        <div className="quantity-price-section">
+                          <div className="quantity-toggle">
                             <button
-                              onClick={() => handleRemoveFromCart(item._id, item.name)}
-                              className="remove-btn"
+                              className="qty-btn"
+                              onClick={() => handleDecreaseQuantity(cartItem.cartKey, cartItem.name, cartItem.variationKey)}
                             >
-                              ×
+                              −
+                            </button>
+                            <span>{cartItem.quantity}</span>
+                            <button
+                              className="qty-btn"
+                              onClick={() => handleAddToCart(cartItem.cartKey, cartItem.name, cartItem.variationKey)}
+                            >
+                              +
                             </button>
                           </div>
+                          <div className="price-section">
+                            <div className="item-total">₹{cartItem.currentPrice * cartItem.quantity}</div>
+                            {cartItem.variationKey && (
+                              <div className="item-unit-price">₹{cartItem.currentPrice} each</div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="item-remove">
+                          <button
+                            onClick={() => handleRemoveFromCart(cartItem.cartKey, cartItem.name, cartItem.variationKey)}
+                            className="remove-btn"
+                          >
+                            ×
+                          </button>
                         </div>
                       </div>
                     </div>
                   </div>
-                );
-              }
-              return null;
+                </div>
+              );
             })
           )}
         </div>
+        
         {!isCartEmpty && (
           <div className="cart-summary-section">
             <div className="cart-totals">

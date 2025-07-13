@@ -207,6 +207,42 @@
   color: #8b4513;
 }
 
+/* New styles for item details */
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.item-description {
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.item-quantity-price {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 5px;
+  font-size: 0.85rem;
+}
+
+.quantity {
+  color: #8b4513;
+  font-weight: 500;
+}
+
+.price {
+  color: #8b4513;
+  font-weight: 600;
+}
+
+.variation-info {
+  color: #666;
+  font-weight: 500;
+}
+
 .address-info {
   background-color: #f9f7f4;
   padding: 12px;
@@ -246,6 +282,11 @@
     align-self: stretch;
     text-align: center;
   }
+  
+  .item-quantity-price {
+    flex-direction: column;
+    gap: 5px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -269,5 +310,9 @@
   
   .user-orders h2 {
     font-size: 1.3rem;
+  }
+  
+  .items-display {
+    max-width: 150px;
   }
 }

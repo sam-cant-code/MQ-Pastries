@@ -12,15 +12,38 @@ const Add = () => {
   const [data, setData] = useState({
     name: "",
     description: "",
-    price: "",
-    unit: "", 
     category: "Brownies" 
   })
+  
+  // State for managing variations (size-price pairs)
+  const [variations, setVariations] = useState([
+    { size: "", price: "" }
+  ]);
 
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
     setData((data) => ({ ...data, [name]: value }))
+  }
+
+  // Handle variation changes
+  const handleVariationChange = (index, field, value) => {
+    const newVariations = [...variations];
+    newVariations[index][field] = value;
+    setVariations(newVariations);
+  }
+
+  // Add new variation
+  const addVariation = () => {
+    setVariations([...variations, { size: "", price: "" }]);
+  }
+
+  // Remove variation
+  const removeVariation = (index) => {
+    if (variations.length > 1) {
+      const newVariations = variations.filter((_, i) => i !== index);
+      setVariations(newVariations);
+    }
   }
 
   // Add form submission handler
@@ -49,15 +72,30 @@ const Add = () => {
       });
       return;
     }
-    if (!data.price || data.price <= 0) {
-      toast.error("Please enter a valid price", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      return;
+
+    // Validate variations
+    const validVariations = {};
+    let hasValidVariation = false;
+
+    for (let i = 0; i < variations.length; i++) {
+      const variation = variations[i];
+      
+      if (variation.size.trim() && variation.price) {
+        const price = Number(variation.price);
+        if (isNaN(price) || price <= 0) {
+          toast.error(`Invalid price for variation "${variation.size}". Must be a positive number.`, {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          return;
+        }
+        validVariations[variation.size.trim()] = price;
+        hasValidVariation = true;
+      }
     }
-    if (!data.unit.trim()) {
-      toast.error("Please enter a unit (e.g., per piece, per kg, per dozen)", {
+
+    if (!hasValidVariation) {
+      toast.error("Please add at least one valid variation with size and price", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -76,9 +114,8 @@ const Add = () => {
     const formData = new FormData();
     formData.append("name", data.name)
     formData.append("description", data.description)
-    formData.append("price", Number(data.price))
-    formData.append("unit", data.unit)
     formData.append("category", data.category)
+    formData.append("variations", JSON.stringify(validVariations))
     formData.append("image", image)
 
     try {
@@ -101,10 +138,9 @@ const Add = () => {
         setData({
           name: "",
           description: "",
-          price: "",
-          unit: "", 
           category: "Brownies" 
         })
+        setVariations([{ size: "", price: "" }]);
         setImage(null);
       } else {
         toast.error(`Failed to add product: ${response.data.message || "Unknown error"}`, {
@@ -212,50 +248,70 @@ const Add = () => {
           />
         </div>
         
-        <div className="add-category-price">
-          <div className="add-category flex-col">
-            <p>Product Category</p>
-            <select 
-              onChange={onChangeHandler} 
-              value={data.category} 
-              name="category"
+        <div className="add-category flex-col">
+          <p>Product Category</p>
+          <select 
+            onChange={onChangeHandler} 
+            value={data.category} 
+            name="category"
+            disabled={loading}
+          >
+            <option value="Brownies">Brownies</option>
+            <option value="Cakes">Cakes</option>
+            <option value="Fried Treats">Fried Treats</option>
+            <option value="Cookies">Cookies</option>
+            <option value="Speciality Sweets">Speciality Sweets</option>
+          </select>
+        </div>    
+
+        {/* Variations Section */}
+        <div className="add-variations flex-col">
+          <div className="variations-header">
+            <p>Product Variations (Size & Price)</p>
+            <button 
+              type="button" 
+              onClick={addVariation}
+              className="add-variation-btn"
               disabled={loading}
             >
-              <option value="Brownies">Brownies</option>
-              <option value="Cakes">Cakes</option>
-              <option value="Fried Treats">Fried Treats</option>
-              <option value="Cookies">Cookies</option>
-              <option value="Speciality Sweets">Speciality Sweets</option>
-            </select>
-          </div>    
+              + Add Variation
+            </button>
+          </div>
           
-          <div className="add-price flex-col">
-            <p>Product Price</p>
-            <input 
-              onChange={onChangeHandler} 
-              value={data.price} 
-              type="number" 
-              name="price" 
-              placeholder="₹0.00"
-              min="0"
-              step="0.01"
-              required
-              disabled={loading}
-            />
-          </div>     
-        </div>
-
-        <div className="add-unit flex-col">
-          <p>Product Unit</p>
-          <input 
-            onChange={onChangeHandler} 
-            value={data.unit} 
-            type="text" 
-            name="unit" 
-            placeholder="e.g., per piece, per kg, per dozen, per box"
-            required
-            disabled={loading}
-          />
+          {variations.map((variation, index) => (
+            <div key={index} className="variation-row">
+              <div className="variation-size">
+                <input
+                  type="text"
+                  placeholder="Size (e.g., Small, Medium, Large)"
+                  value={variation.size}
+                  onChange={(e) => handleVariationChange(index, 'size', e.target.value)}
+                  disabled={loading}
+                />
+              </div>
+              <div className="variation-price">
+                <input
+                  type="number"
+                  placeholder="Price (₹)"
+                  value={variation.price}
+                  onChange={(e) => handleVariationChange(index, 'price', e.target.value)}
+                  min="0"
+                  step="0.01"
+                  disabled={loading}
+                />
+              </div>
+              {variations.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeVariation(index)}
+                  className="remove-variation-btn"
+                  disabled={loading}
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+          ))}
         </div>
         
         <button 

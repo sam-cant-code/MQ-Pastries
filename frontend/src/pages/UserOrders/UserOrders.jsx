@@ -12,7 +12,14 @@ const UserOrders = () => {
     try {
       const response = await axios.post(url + "/api/order/userorders", {}, { headers: { token } });
       setData(response.data.data);
-      console.log(response.data.data);
+      console.log("Full response:", response.data.data);
+      
+      // Debug: Check the structure of each order
+      response.data.data.forEach((order, index) => {
+        console.log(`Order ${index}:`, order);
+        console.log(`Order ${index} items:`, order.items);
+        console.log(`Order ${index} items length:`, order.items ? order.items.length : 'No items property');
+      });
     } catch (error) {
       console.error("Failed to fetch orders:", error);
     }
@@ -34,8 +41,30 @@ const UserOrders = () => {
     setExpandedOrders(newExpanded);
   };
 
+  // Helper function to format item name with variation
+  const formatItemNameWithVariation = (item) => {
+    if (item.variation && item.variation.trim() !== '') {
+      return `${item.name} (${item.variation})`;
+    }
+    return item.name;
+  };
+
   const formatItemsDisplay = (items) => {
-    const itemTexts = items.map(item => `${item.name}×${item.quantity}`);
+    // Debug: Check if items exist and have length
+    if (!items || !Array.isArray(items)) {
+      console.log("Items is not an array or is null/undefined:", items);
+      return "No items data";
+    }
+    
+    if (items.length === 0) {
+      console.log("Items array is empty");
+      return "No items";
+    }
+
+    const itemTexts = items.map(item => {
+      const itemName = formatItemNameWithVariation(item);
+      return `${itemName}×${item.quantity}`;
+    });
     const fullText = itemTexts.join(', ');
     
     if (fullText.length > 50) {
@@ -51,6 +80,18 @@ const UserOrders = () => {
     }
     
     return fullText;
+  };
+
+  // Helper function to create full tooltip text
+  const getFullItemsText = (items) => {
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return "No items available";
+    }
+    
+    return items.map(item => {
+      const itemName = formatItemNameWithVariation(item);
+      return `${itemName}×${item.quantity}`;
+    }).join(', ');
   };
 
   const getStatusClass = (status) => {
@@ -106,7 +147,7 @@ const UserOrders = () => {
                   
                   <div className="order-info-item">
                     <span className="label">Items</span>
-                    <span className="value items-display" title={order.items.map(item => `${item.name}×${item.quantity}`).join(', ')}>
+                    <span className="value items-display" title={getFullItemsText(order.items)}>
                       {formatItemsDisplay(order.items)}
                     </span>
                   </div>
@@ -122,14 +163,37 @@ const UserOrders = () => {
               
               <div className={`order-details ${expandedOrders.has(order._id) ? 'show' : ''}`}>
                 <h4>Order Items</h4>
-                <ul>
-                  {order.items.map((item, idx) => (
-                    <li key={item._id || idx}>
-                      <span className="item-name">{item.name}</span> - {item.description} | 
-                      Qty: {item.quantity} | Price: ₹{item.price}
-                    </li>
-                  ))}
-                </ul>
+                {/* Debug: Show items structure */}
+                {!order.items || !Array.isArray(order.items) ? (
+                  <p style={{color: 'red', fontStyle: 'italic'}}>
+                    Debug: Items data is missing or not an array. 
+                    Items value: {JSON.stringify(order.items)}
+                  </p>
+                ) : order.items.length === 0 ? (
+                  <p style={{color: 'orange', fontStyle: 'italic'}}>
+                    Debug: Items array is empty
+                  </p>
+                ) : (
+                  <ul>
+                    {order.items.map((item, idx) => (
+                      <li key={item._id || idx}>
+                        <div className="item-details">
+                          <span className="item-name">{formatItemNameWithVariation(item)}</span>
+                          {item.description && (
+                            <span className="item-description"> - {item.description}</span>
+                          )}
+                          <div className="item-quantity-price">
+                            <span className="quantity">Qty: {item.quantity}</span>
+                            <span className="price">Price: ₹{item.price}</span>
+                            {item.variation && (
+                              <span className="variation-info">Variation: {item.variation}</span>
+                            )}
+                          </div>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 
                 <h4>Delivery Address</h4>
                 <div className="address-info">
