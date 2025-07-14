@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import './PlaceOrder.css';
 import { StoreContext } from '../../context/StoreContext.jsx';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Add this import
+import axios from 'axios';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -15,12 +15,39 @@ const Checkout = () => {
     
     try {
       let orderItems = [];
+      
+      // Process cart items with variations
       pastery_list.map((item)=>{
-        if(cartItems[item._id]>0){
-          let itemInfo = { ...item, quantity: cartItems[item._id] }; // avoid mutating original item
-          orderItems.push(itemInfo);
+        // Check if item has variations
+        if(item.variations && typeof item.variations === 'object') {
+          // Handle variations - cartItems should store variation info
+          Object.keys(item.variations).forEach(variation => {
+            const cartKey = `${item._id}_${variation}`;
+            if(cartItems[cartKey] && cartItems[cartKey] > 0) {
+              let itemInfo = { 
+                ...item, 
+                quantity: cartItems[cartKey],
+                selectedVariation: variation,
+                variationPrice: item.variations[variation],
+                // Use variation price instead of base price
+                price: item.variations[variation]
+              };
+              orderItems.push(itemInfo);
+            }
+          });
+        } else {
+          // Handle items without variations (legacy support)
+          if(cartItems[item._id] && cartItems[item._id] > 0) {
+            let itemInfo = { 
+              ...item, 
+              quantity: cartItems[item._id],
+              selectedVariation: null,
+              variationPrice: item.price
+            };
+            orderItems.push(itemInfo);
+          }
         }
-      })
+      });
       
       let orderData = {
         address: data,
@@ -43,10 +70,11 @@ const Checkout = () => {
           key: response.data.key_id,
           amount: response.data.amount,
           currency: response.data.currency,
-          name: "Your Pastry Shop",
+          name: "MQ-Pastries",
           description: "Order Payment",
           order_id: response.data.order_id,
           handler: function (paymentResponse) {
+            console.log("Payment response received:", paymentResponse);
             // Verify payment on backend
             verifyPayment(paymentResponse, response.data.orderId);
           },
@@ -57,6 +85,11 @@ const Checkout = () => {
           },
           theme: {
             color: "#3399cc"
+          },
+          modal: {
+            ondismiss: function() {
+              console.log("Payment modal dismissed");
+            }
           }
         };
         
@@ -75,6 +108,30 @@ const Checkout = () => {
 
   const verifyPayment = async (paymentResponse, orderId) => {
     try {
+      console.log("Starting payment verification...");
+      console.log("Payment Response:", paymentResponse);
+      console.log("Order ID:", orderId);
+      console.log("Token:", token);
+      
+      // Validate required fields
+      if (!paymentResponse.razorpay_order_id || !paymentResponse.razorpay_payment_id || !paymentResponse.razorpay_signature) {
+        console.error("Missing required payment response fields");
+        alert("Payment verification failed: Missing payment details");
+        return;
+      }
+      
+      if (!orderId) {
+        console.error("Missing order ID");
+        alert("Payment verification failed: Missing order ID");
+        return;
+      }
+      
+      if (!token) {
+        console.error("Missing authentication token");
+        alert("Payment verification failed: Authentication required");
+        return;
+      }
+      
       const verifyData = {
         razorpay_order_id: paymentResponse.razorpay_order_id,
         razorpay_payment_id: paymentResponse.razorpay_payment_id,
@@ -82,17 +139,43 @@ const Checkout = () => {
         orderId: orderId
       };
       
-      const response = await axios.post(url + "/api/order/verify", verifyData, {headers: {token}});
+      console.log("Sending verification data:", verifyData);
+      console.log("Verification URL:", url + "/api/order/verify");
+      
+      const response = await axios.post(url + "/api/order/verify", verifyData, {
+        headers: { 
+          token: token,
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log("Verification response:", response.data);
       
       if (response.data.success) {
+        console.log("Payment verification successful!");
         alert("Payment successful!");
         navigate("/orders"); // Navigate to orders page or wherever you want
       } else {
-        alert("Payment verification failed!");
+        console.error("Payment verification failed:", response.data);
+        alert("Payment verification failed: " + (response.data.message || "Unknown error"));
       }
     } catch (error) {
       console.error("Payment verification error:", error);
-      alert("Payment verification failed!");
+      console.error("Error details:", error.response?.data);
+      
+      if (error.response) {
+        // Server responded with error status
+        console.error("Server error:", error.response.status, error.response.data);
+        alert(`Payment verification failed: ${error.response.data.message || 'Server error'}`);
+      } else if (error.request) {
+        // Request made but no response received
+        console.error("Network error:", error.request);
+        alert("Payment verification failed: Network error");
+      } else {
+        // Something else happened
+        console.error("Unexpected error:", error.message);
+        alert("Payment verification failed: " + error.message);
+      }
     }
   }
 
@@ -112,6 +195,42 @@ const Checkout = () => {
     const name = event.target.name;
     const value = event.target.value;
     setData(data => ({ ...data, [name]: value }));
+  };
+
+  // Helper function to get cart items with variations for display
+  const getCartItemsForDisplay = () => {
+    const displayItems = [];
+    
+    pastery_list.forEach((item) => {
+      if(item.variations && typeof item.variations === 'object') {
+        // Handle variations
+        Object.keys(item.variations).forEach(variation => {
+          const cartKey = `${item._id}_${variation}`;
+          if(cartItems[cartKey] && cartItems[cartKey] > 0) {
+            displayItems.push({
+              ...item,
+              quantity: cartItems[cartKey],
+              selectedVariation: variation,
+              displayPrice: item.variations[variation],
+              cartKey: cartKey
+            });
+          }
+        });
+      } else {
+        // Handle items without variations
+        if(cartItems[item._id] && cartItems[item._id] > 0) {
+          displayItems.push({
+            ...item,
+            quantity: cartItems[item._id],
+            selectedVariation: null,
+            displayPrice: item.price,
+            cartKey: item._id
+          });
+        }
+      }
+    });
+    
+    return displayItems;
   };
 
   const subtotal = getTotalCartAmount();
@@ -216,23 +335,61 @@ const Checkout = () => {
         </div>
 
         <div className="checkout-right">
-          <h2>Cart Totals</h2>
-          <div className="cart-total-row">
-            <span>Subtotal</span>
-            <span>₹{subtotal}</span>
-          </div>
-          <div className="cart-total-row">
-            <span>Delivery Fee</span>
-            <span>₹{deliveryFee}</span>
-          </div>
-          <div className="cart-total-row total">
-            <strong>Total</strong>
-            <strong>₹{total}</strong>
+          <h2>Invoice</h2>
+          
+          {/* Bill-style Order Summary */}
+          <div className="cart-items-summary">
+            <h3>Order Details</h3>
+            
+            {/* Bill header */}
+            <div className="bill-header">
+              <span>Item</span>
+              <span>Price</span>
+              <span>Qty</span>
+              <span>Total</span>
+            </div>
+            
+            {/* Bill items */}
+            {getCartItemsForDisplay().map((item, index) => (
+              <div key={index} className="cart-item-row">
+                <div className="item-details">
+                  <div className="item-name">{item.name}</div>
+                  {item.selectedVariation && (
+                    <div className="variation-info">({item.selectedVariation})</div>
+                  )}
+                </div>
+                <div className="unit-price">₹{item.displayPrice}</div>
+                <div className="quantity">{item.quantity}</div>
+                <div className="total-price">₹{item.displayPrice * item.quantity}</div>
+                
+                {/* Mobile layout */}
+                <div className="mobile-row">
+                  <span>₹{item.displayPrice} × {item.quantity}</span>
+                  <span>₹{item.displayPrice * item.quantity}</span>
+                </div>
+              </div>
+            ))}
           </div>
           
-          {/* Payment button moved here */}
+          {/* Bill totals */}
+          <div className="bill-totals">
+            <div className="cart-total-row">
+              <span>Subtotal</span>
+              <span>₹{subtotal}</span>
+            </div>
+            <div className="cart-total-row">
+              <span>Delivery Fee</span>
+              <span>₹{deliveryFee}</span>
+            </div>
+            <div className="cart-total-row total">
+              <span>Total Amount</span>
+              <span>₹{total}</span>
+            </div>
+          </div>
+          
+          {/* Payment button */}
           <button onClick={onCheckout} className="checkout-btn">
-            PROCEED TO PAYMENT
+            Proceed to Payment
           </button>
         </div>
       </div>
