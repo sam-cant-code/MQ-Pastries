@@ -295,9 +295,14 @@ const FoodDisplay = () => {
                                                (item.variations && Object.keys(item.variations).length > 0 ? 
                                                 Object.keys(item.variations)[0] : null);
                         
-                        // Create unique cart key for item + variation
-                        const cartKey = currentVariation ? `${item._id}_${currentVariation}` : item._id;
-                        const currentCount = cartItems[cartKey] || 0;
+                        // Create unique cart key for item + variation - FIXED
+                        const cartKey = currentVariation ? 
+                            `${item._id}_${encodeURIComponent(currentVariation)}` : 
+                            item._id;
+                        
+                        // FIXED: Ensure cartItems is an object and safely access it
+                        const currentCart = cartItems && typeof cartItems === 'object' ? cartItems : {};
+                        const currentCount = currentCart[cartKey] || 0;
 
                         const imgSrc = item.image
                             ? item.image.startsWith('http')

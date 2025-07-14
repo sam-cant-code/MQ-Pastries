@@ -4,11 +4,15 @@ import axios from "axios";
 export const StoreContext = createContext(null);
 
 const StoreContextProvider = (props) => {
-    // 🛒 Load cart items from localStorage on initialization
+    // 🛒 Load cart items from localStorage on initialization - FIXED
     const [cartItems, setCartItems] = useState(() => {
         try {
             const savedCart = localStorage.getItem("cartItems");
-            return savedCart ? JSON.parse(savedCart) : {};
+            // Check if savedCart exists and is not "undefined" string
+            if (savedCart && savedCart !== "undefined" && savedCart !== "null") {
+                return JSON.parse(savedCart);
+            }
+            return {};
         } catch (error) {
             console.error("Error loading cart from localStorage:", error);
             return {};
@@ -17,9 +21,16 @@ const StoreContextProvider = (props) => {
 
     const url = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
-    // 🔐 Load token and name from localStorage
-    const [token, setToken] = useState(() => localStorage.getItem("token") || "");
-    const [userName, setUserName] = useState(() => localStorage.getItem("userName") || "");
+    // 🔐 Load token and name from localStorage - FIXED
+    const [token, setToken] = useState(() => {
+        const savedToken = localStorage.getItem("token");
+        return (savedToken && savedToken !== "null" && savedToken !== "undefined") ? savedToken : "";
+    });
+    
+    const [userName, setUserName] = useState(() => {
+        const savedName = localStorage.getItem("userName");
+        return (savedName && savedName !== "null" && savedName !== "undefined") ? savedName : "";
+    });
     
     // 🔄 Login popup state
     const [showLogin, setShowLogin] = useState(false);
@@ -70,18 +81,20 @@ const StoreContextProvider = (props) => {
         loadData();
     }, [url, token]); // Re-fetch if URL or token changes
 
-    // 🛒 Save cart items to localStorage whenever cartItems changes
+    // 🛒 Save cart items to localStorage whenever cartItems changes - FIXED
     useEffect(() => {
         try {
-            localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            if (cartItems && typeof cartItems === 'object') {
+                localStorage.setItem("cartItems", JSON.stringify(cartItems));
+            }
         } catch (error) {
             console.error("Error saving cart to localStorage:", error);
         }
     }, [cartItems]);
 
-    // 🔄 Sync token and name to localStorage
+    // 🔄 Sync token and name to localStorage - FIXED
     useEffect(() => {
-        if (token) {
+        if (token && token !== "undefined" && token !== "null") {
             localStorage.setItem("token", token);
         } else {
             localStorage.removeItem("token");
@@ -89,7 +102,7 @@ const StoreContextProvider = (props) => {
     }, [token]);
 
     useEffect(() => {
-        if (userName) {
+        if (userName && userName !== "undefined" && userName !== "null") {
             localStorage.setItem("userName", userName);
         } else {
             localStorage.removeItem("userName");
@@ -100,7 +113,9 @@ const StoreContextProvider = (props) => {
     const fetchCartList = async (token) => {
         try {
             const response = await axios.post(url+"/api/cart/get", {}, {headers:{token}});
-            setCartItems(response.data.cartData);
+            if (response.data.cartData) {
+                setCartItems(response.data.cartData);
+            }
         } catch (error) {
             console.error("Error loading cart from server:", error);
         }
@@ -118,15 +133,23 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem("cartItems"); // Clear cart from localStorage too
     };
 
-    // 🛒 Helper function to create cart key
+    // 🛒 Helper function to create cart key - FIXED to handle special characters
     const createCartKey = (itemId, variationKey = null) => {
-        return variationKey ? `${itemId}_${variationKey}` : itemId;
+        if (variationKey) {
+            // Encode special characters to avoid issues
+            const encodedVariation = encodeURIComponent(variationKey);
+            return `${itemId}_${encodedVariation}`;
+        }
+        return itemId;
     };
 
-    // 🛒 Helper function to parse cart key
+    // 🛒 Helper function to parse cart key - FIXED
     const parseCartKey = (cartKey) => {
         if (cartKey.includes('_')) {
-            const [itemId, variationKey] = cartKey.split('_');
+            const parts = cartKey.split('_');
+            const itemId = parts[0];
+            const encodedVariation = parts.slice(1).join('_'); // Handle multiple underscores
+            const variationKey = decodeURIComponent(encodedVariation);
             return { itemId, variationKey };
         }
         return { itemId: cartKey, variationKey: null };
@@ -148,18 +171,26 @@ const StoreContextProvider = (props) => {
     const addToCart = async (itemId, variationKey = null) => {
         const cartKey = createCartKey(itemId, variationKey);
         
-        setCartItems((prev) => ({
-            ...prev,
-            [cartKey]: (prev[cartKey] || 0) + 1
-        }));
+        setCartItems((prev) => {
+            // Ensure prev is an object
+            const currentCart = prev && typeof prev === 'object' ? prev : {};
+            return {
+                ...currentCart,
+                [cartKey]: (currentCart[cartKey] || 0) + 1
+            };
+        });
         
         if(token){
-            // You may need to update your backend API to handle variations
-            await axios.post(url+"/api/cart/add", {
-                itemId, 
-                variationKey,
-                cartKey
-            }, {headers:{token}})
+            try {
+                // You may need to update your backend API to handle variations
+                await axios.post(url+"/api/cart/add", {
+                    itemId, 
+                    variationKey,
+                    cartKey
+                }, {headers:{token}})
+            } catch (error) {
+                console.error("Error adding to cart on server:", error);
+            }
         }
     };
 
@@ -167,16 +198,22 @@ const StoreContextProvider = (props) => {
         const cartKey = createCartKey(itemId, variationKey);
         
         setCartItems((prev) => {
-            const { [cartKey]: removed, ...rest } = prev;
+            // Ensure prev is an object
+            const currentCart = prev && typeof prev === 'object' ? prev : {};
+            const { [cartKey]: removed, ...rest } = currentCart;
             return rest;
         });
         
         if(token){
-            await axios.post(url+"/api/cart/remove", {
-                itemId,
-                variationKey,
-                cartKey
-            }, {headers:{token}})
+            try {
+                await axios.post(url+"/api/cart/remove", {
+                    itemId,
+                    variationKey,
+                    cartKey
+                }, {headers:{token}})
+            } catch (error) {
+                console.error("Error removing from cart on server:", error);
+            }
         }
     };
 
@@ -185,25 +222,32 @@ const StoreContextProvider = (props) => {
         const cartKey = createCartKey(itemId, variationKey);
         
         setCartItems((prev) => {
-            const currentQuantity = prev[cartKey] || 0;
+            // Ensure prev is an object
+            const currentCart = prev && typeof prev === 'object' ? prev : {};
+            const currentQuantity = currentCart[cartKey] || 0;
+            
             if (currentQuantity <= 1) {
                 // Remove item completely if quantity would become 0 or less
-                const { [cartKey]: removed, ...rest } = prev;
+                const { [cartKey]: removed, ...rest } = currentCart;
                 return rest;
             }
             return {
-                ...prev,
+                ...currentCart,
                 [cartKey]: currentQuantity - 1
             };
         });
         
         // Sync with server if logged in
         if(token){
-            await axios.post(url+"/api/cart/decrease", {
-                itemId,
-                variationKey,
-                cartKey
-            }, {headers:{token}})
+            try {
+                await axios.post(url+"/api/cart/decrease", {
+                    itemId,
+                    variationKey,
+                    cartKey
+                }, {headers:{token}})
+            } catch (error) {
+                console.error("Error decreasing quantity on server:", error);
+            }
         }
     };
 
@@ -212,38 +256,46 @@ const StoreContextProvider = (props) => {
         setCartItems({});
     };
 
-    // 💰 Updated calculate total cart amount with variation support
+    // 💰 Updated calculate total cart amount with variation support - FIXED
     const getTotalCartAmount = () => {
         let totalAmount = 0;
         if (!pastery_list || !Array.isArray(pastery_list)) return totalAmount;
+        
+        // Ensure cartItems is an object
+        const currentCart = cartItems && typeof cartItems === 'object' ? cartItems : {};
 
-        for (const cartKey in cartItems) {
-            if (cartItems[cartKey] > 0) {
+        for (const cartKey in currentCart) {
+            if (currentCart[cartKey] > 0) {
                 const { itemId, variationKey } = parseCartKey(cartKey);
                 const itemPrice = getItemPrice(itemId, variationKey);
-                totalAmount += itemPrice * cartItems[cartKey];
+                totalAmount += itemPrice * currentCart[cartKey];
             }
         }
         return totalAmount;
     };
 
-    // 🔢 Calculate total cart items
+    // 🔢 Calculate total cart items - FIXED
     const getTotalCartItems = () => {
         let totalItems = 0;
-        for (const cartKey in cartItems) {
-            if (cartItems[cartKey] > 0) {
-                totalItems += cartItems[cartKey];
+        // Ensure cartItems is an object
+        const currentCart = cartItems && typeof cartItems === 'object' ? cartItems : {};
+        
+        for (const cartKey in currentCart) {
+            if (currentCart[cartKey] > 0) {
+                totalItems += currentCart[cartKey];
             }
         }
         return totalItems;
     };
 
-    // 🛒 Get cart items with their details (including variations)
+    // 🛒 Get cart items with their details (including variations) - FIXED
     const getCartItemsWithDetails = () => {
         const cartItemsArray = [];
+        // Ensure cartItems is an object
+        const currentCart = cartItems && typeof cartItems === 'object' ? cartItems : {};
         
-        for (const cartKey in cartItems) {
-            if (cartItems[cartKey] > 0) {
+        for (const cartKey in currentCart) {
+            if (currentCart[cartKey] > 0) {
                 const { itemId, variationKey } = parseCartKey(cartKey);
                 const item = pastery_list.find(product => product._id === itemId);
                 
@@ -251,10 +303,10 @@ const StoreContextProvider = (props) => {
                     cartItemsArray.push({
                         ...item,
                         cartKey,
-                        quantity: cartItems[cartKey],
+                        quantity: currentCart[cartKey],
                         variationKey,
                         currentPrice: getItemPrice(itemId, variationKey),
-                        totalPrice: getItemPrice(itemId, variationKey) * cartItems[cartKey]
+                        totalPrice: getItemPrice(itemId, variationKey) * currentCart[cartKey]
                     });
                 }
             }

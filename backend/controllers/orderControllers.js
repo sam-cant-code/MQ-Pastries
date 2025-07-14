@@ -12,30 +12,82 @@ const placeOrder = async (req, res) => {
     const frontend_url = "https://mq-pastries-7qdw.onrender.com/";
 
     try {
-        // Transform items to match the new schema structure
-        const transformedItems = req.body.items.map(item => ({
-            _id: item._id || item.id, // Use _id if available, fallback to id
-            name: item.name,
-            description: item.description || "",
-            image: item.image || "",
-            price: item.price,
-            quantity: item.quantity,
-            variation: item.variation || item.size || "Regular", // Handle variation/size
-            category: item.category || ""
-        }));
+        console.log("Received order data:", req.body);
+        console.log("Items being processed:", req.body.items);
 
+        // Validate required fields
+        if (!req.body.userId || !req.body.items || !req.body.amount || !req.body.address) {
+            return res.json({ success: false, message: "Missing required fields" });
+        }
+
+        // Transform items to match the schema structure exactly
+        const transformedItems = req.body.items.map(item => {
+            console.log("Processing item:", item);
+            
+            // Schema requires variation to be present and not empty
+            const variation = item.variation || item.size || item.selectedVariation || "default";
+            
+            // Schema requires price to be present
+            const price = item.price || item.variationPrice || 0;
+            
+            console.log(`Item: ${item.name}, Variation: ${variation}, Price: ${price}`);
+            
+            return {
+                _id: item._id || item.id, // Reference to food item
+                name: item.name || "Unknown Item",
+                description: item.description || "",
+                image: item.image || "",
+                category: item.category || "",
+                variation: variation, // Required by schema
+                price: price, // Required by schema - snapshot of variation price
+                quantity: item.quantity || 1 // Required by schema
+            };
+        });
+
+        console.log("Transformed items:", transformedItems);
+
+        // Validate transformed items against schema requirements
+        const isValidItems = transformedItems.every(item => 
+            item._id && 
+            item.name && 
+            item.variation && 
+            typeof item.price === 'number' && 
+            typeof item.quantity === 'number'
+        );
+
+        if (!isValidItems) {
+            return res.json({ success: false, message: "Invalid item data" });
+        }
+
+        // Create new order with schema-compliant structure
         const newOrder = new orderModel({
             userId: req.body.userId,
             items: transformedItems,
             amount: req.body.amount,
-            address: req.body.address
+            address: {
+                firstName: req.body.address.firstName || "",
+                lastName: req.body.address.lastName || "",
+                street: req.body.address.street || "",
+                city: req.body.address.city || "",
+                zipcode: req.body.address.zipcode || "", // Schema uses zipcode, not pincode
+                state: req.body.address.state || "",
+                country: req.body.address.country || "",
+                email: req.body.address.email || "",
+                phone: req.body.address.phone || ""
+            },
+            status: "Order Processing", // Default status
+            date: new Date(), // Current date
+            payment: false // Default payment status
         });
         
         await newOrder.save();
+        console.log("Order saved successfully:", newOrder);
+        
+        // Clear user's cart after successful order
         await userModel.findByIdAndUpdate(req.body.userId, { cartdata: {} });
 
         // Calculate total amount in paisa (Razorpay uses smallest currency unit)
-        const totalAmount = (req.body.amount + 0) * 100; // +2 for delivery charges, *100 for paisa
+        const totalAmount = (req.body.amount + 0) * 100; // *100 for paisa conversion
 
         // Create Razorpay order
         const options = {
@@ -60,8 +112,8 @@ const placeOrder = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
-        res.json({ success: false, message: "Error creating order" });
+        console.log("Error in placeOrder:", error);
+        res.json({ success: false, message: "Error creating order: " + error.message });
     }
 };
 
@@ -107,11 +159,19 @@ const verifyPayment = async (req, res) => {
 const userOrders = async (req,res) => {
     try {
         const orders = await orderModel.find({userId:req.body.userId})
-            .populate('items._id', 'name description image category') // Populate food item details
             .sort({ date: -1 }); // Sort by newest first
+        
+        console.log("Fetched orders for user:", req.body.userId);
+        console.log("Orders found:", orders.length);
+        
+        // Log each order's items for debugging
+        orders.forEach((order, index) => {
+            console.log(`Order ${index} items:`, order.items);
+        });
+        
         res.json({success:true, data:orders})
     } catch (error) {
-        console.log(error);
+        console.log("Error in userOrders:", error);
         res.json({success:false, message:"Error fetching user orders"})
     }
 }
@@ -119,7 +179,7 @@ const userOrders = async (req,res) => {
 const allUserOrders = async (req,res) => {
     try {
         const orders = await orderModel.find({})
-            .populate('items._id', 'name description image category') // Populate food item details
+            .populate('items._id', 'name description image category variations price') // Populate food item details
             .populate('userId', 'name email') // Populate user details
             .sort({ date: -1 }); // Sort by newest first
         res.json({success:true, data:orders})

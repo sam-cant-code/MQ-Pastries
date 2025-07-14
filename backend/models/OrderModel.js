@@ -21,11 +21,15 @@ const orderSchema = new mongoose.Schema({
 
   address: {
     type: {
+      firstName: String,
+      lastName: String,
       street: String,
       city: String,
-      pincode: String,
+      zipcode: String,  // Changed from pincode to zipcode
       state: String,
-      country: String
+      country: String,
+      email: String,
+      phone: String
     },
     required: true
   },

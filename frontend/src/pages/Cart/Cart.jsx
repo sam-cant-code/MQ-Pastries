@@ -52,22 +52,75 @@ const Cart = () => {
     navigate('/');
   };
 
+  // FIXED: Robust cart key parsing function
+  const parseCartKey = (cartKey) => {
+    if (cartKey.includes('_')) {
+      const parts = cartKey.split('_');
+      const itemId = parts[0];
+      const encodedVariation = parts.slice(1).join('_'); // Handle multiple underscores
+      try {
+        const variationKey = decodeURIComponent(encodedVariation);
+        return { itemId, variationKey };
+      } catch (error) {
+        console.error('Error decoding variation key:', error);
+        return { itemId, variationKey: encodedVariation };
+      }
+    }
+    return { itemId: cartKey, variationKey: null };
+  };
+
+  // FIXED: Remove function with proper decoding
   const handleRemoveFromCart = (cartKey, itemName, variationKey) => {
-    removeFromCart(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
-    const variationLabel = variationKey ? ` (${variationKey})` : '';
-    showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
+    console.log('Removing item:', { cartKey, itemName, variationKey }); // Debug log
+    
+    try {
+      // Parse the cart key to get the item ID
+      const itemId = cartKey.includes('_') ? cartKey.split('_')[0] : cartKey;
+      
+      // FIXED: Decode the variation key if it exists
+      const decodedVariationKey = variationKey ? decodeURIComponent(variationKey) : null;
+      
+      // Call removeFromCart with the decoded variation key
+      removeFromCart(itemId, decodedVariationKey);
+      
+      const variationLabel = variationKey ? ` (${decodeURIComponent(variationKey)})` : '';
+      showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+      showToast('Error removing item from cart', 'error');
+    }
   };
 
+  // FIXED: Add function with proper decoding
   const handleAddToCart = (cartKey, itemName, variationKey) => {
-    addToCart(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
-    const variationLabel = variationKey ? ` (${variationKey})` : '';
-    showToast(`${itemName}${variationLabel} added to cart!`, 'success');
+    try {
+      const itemId = cartKey.includes('_') ? cartKey.split('_')[0] : cartKey;
+      const decodedVariationKey = variationKey ? decodeURIComponent(variationKey) : null;
+      
+      addToCart(itemId, decodedVariationKey);
+      
+      const variationLabel = variationKey ? ` (${decodeURIComponent(variationKey)})` : '';
+      showToast(`${itemName}${variationLabel} added to cart!`, 'success');
+    } catch (error) {
+      console.error('Error adding item to cart:', error);
+      showToast('Error adding item to cart', 'error');
+    }
   };
 
+  // FIXED: Decrease quantity function with proper decoding
   const handleDecreaseQuantity = (cartKey, itemName, variationKey) => {
-    decreaseQuantity(cartKey.includes('_') ? cartKey.split('_')[0] : cartKey, variationKey);
-    const variationLabel = variationKey ? ` (${variationKey})` : '';
-    showToast(`Decreased quantity of ${itemName}${variationLabel}`, 'info');
+    try {
+      const itemId = cartKey.includes('_') ? cartKey.split('_')[0] : cartKey;
+      const decodedVariationKey = variationKey ? decodeURIComponent(variationKey) : null;
+      
+      decreaseQuantity(itemId, decodedVariationKey);
+      
+      const variationLabel = variationKey ? ` (${decodeURIComponent(variationKey)})` : '';
+      showToast(`Decreased quantity of ${itemName}${variationLabel}`, 'info');
+    } catch (error) {
+      console.error('Error decreasing quantity:', error);
+      showToast('Error updating quantity', 'error');
+    }
   };
 
   // Helper function to get price for a specific variation
@@ -78,16 +131,7 @@ const Cart = () => {
     return item.price || 0;
   };
 
-  // Helper function to parse cart key and get variation info
-  const parseCartKey = (cartKey) => {
-    if (cartKey.includes('_')) {
-      const [itemId, variationKey] = cartKey.split('_');
-      return { itemId, variationKey };
-    }
-    return { itemId: cartKey, variationKey: null };
-  };
-
-  // Get all cart items with their variations
+  // FIXED: Get all cart items with their variations using the fixed parseCartKey
   const getCartItemsWithVariations = () => {
     const cartItemsArray = [];
     
@@ -212,12 +256,12 @@ const Cart = () => {
               </div>
               <div className="total-row">
                 <span>Delivery Fee</span>
-                <span>₹{getTotalCartAmount() === 0 ? 0 : 50}</span>
+                <span>₹0</span>
               </div>
               <div className="total-row total-final">
                 <strong>Total</strong>
                 <strong>
-                  ₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount() + 50}
+                  ₹{getTotalCartAmount() === 0 ? 0 : getTotalCartAmount()}
                 </strong>
               </div>
             </div>
