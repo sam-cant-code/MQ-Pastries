@@ -1,30 +1,48 @@
-import React from 'react'
+import React, { useContext, useEffect } from 'react'
+import { useSearchParams, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import './Verify.css'
-import { StoreContext } from '../../context/StoreContext';
+import { StoreContext } from '../../context/StoreContext'
 
 const Verify = () => {
-
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams()
   const success = searchParams.get("success")
   const orderId = searchParams.get("orderId")
-  const {url} = useContext(StoreContext);
-  const navigate = useNavigate();
+  const { url } = useContext(StoreContext)
+  const navigate = useNavigate()
 
   const verifyPayment = async () => {
-    const response = await axios.post(url+"/api/order/verify", {success, orderId})
-    if(response.data.success){
+    try {
+      console.log("Verifying payment with:", { success, orderId })
+      
+      const response = await axios.post(url + "/api/order/verify", { success, orderId })
+      
+      console.log("Verification response:", response.data)
+      
+      if (response.data.success) {
         navigate("/myorders")
-    }
-    else{
+      } else {
         navigate("/")
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error)
+      navigate("/")
     }
   }
-  useEffect(()=>{
-    verifyPayment();
-  },[])
+
+  useEffect(() => {
+    if (success && orderId) {
+      verifyPayment()
+    } else {
+      console.log("Missing success or orderId parameters")
+      navigate("/")
+    }
+  }, [])
+
   return (
-    <div>
+    <div className="verify-container">
       <div className="spinner"></div>
+      <p>Verifying your payment...</p>
     </div>
   )
 }
