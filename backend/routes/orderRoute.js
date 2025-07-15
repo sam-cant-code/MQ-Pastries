@@ -1,4 +1,4 @@
-import { placeOrder, verifyOrder, userOrders, allUserOrders} from "../controllers/orderControllers.js";
+import { placeOrder, verifyOrder, userOrders, allUserOrders, updateOrderStatus, verifyPayment} from "../controllers/orderControllers.js";
 import express from 'express'
 import authMiddleWare from "../middleware/auth.js";
 
@@ -8,5 +8,6 @@ orderRouter.post("/place", authMiddleWare, placeOrder)
 orderRouter.post("/verify", verifyOrder)
 orderRouter.post("/userorders", authMiddleWare, userOrders)
 orderRouter.get("/list", allUserOrders)
+orderRouter.put("/status", updateOrderStatus)
 
 export default orderRouter

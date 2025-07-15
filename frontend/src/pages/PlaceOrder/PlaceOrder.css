@@ -69,12 +69,51 @@
   outline: none;
   color: black;
   background-color: white;
+  transition: all 0.3s ease;
+}
+
+.delivery-form input:focus {
+  border-color: #8B4513;
+  box-shadow: 0 0 0 2px rgba(139, 69, 19, 0.1);
 }
 
 .form-row {
   display: flex;
   gap: 15px;
   flex-wrap: wrap;
+}
+
+/* Form validation styles */
+.form-field {
+  position: relative;
+  margin-bottom: 5px;
+  flex: 1;
+}
+
+.form-field input.error {
+  border-color: #ff4444;
+  background-color: #fff5f5;
+  box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.1);
+}
+
+.form-field input.error:focus {
+  border-color: #ff4444;
+  box-shadow: 0 0 0 2px rgba(255, 68, 68, 0.2);
+}
+
+.error-message {
+  display: block;
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 5px;
+  margin-left: 5px;
+  font-weight: 500;
+  min-height: 16px;
+}
+
+/* Update form-row to work with form-field wrapper */
+.form-row .form-field {
+  flex: 1;
 }
 
 /* Right column */
@@ -212,15 +251,69 @@
   border-radius: 6px;
   margin-top: 25px;
   cursor: pointer;
-  transition: 0.3s;
+  transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-.checkout-btn:hover {
+.checkout-btn:hover:not(.disabled) {
   background-color: #a0522d;
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(139, 69, 19, 0.3);
+}
+
+/* Disabled button styles */
+.checkout-btn.disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+  color: #999;
+}
+
+.checkout-btn.disabled:hover {
+  background-color: #ccc;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Button loading state (optional) */
+.checkout-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+  color: #999;
+}
+
+.checkout-btn:disabled:hover {
+  background-color: #ccc;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Form completion indicator */
+.form-completion-indicator {
+  margin-top: 15px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.form-completion-indicator.incomplete {
+  background-color: #fff5f5;
+  color: #ff4444;
+  border: 1px solid #ffcccc;
+}
+
+.form-completion-indicator.complete {
+  background-color: #f0f9ff;
+  color: #10b981;
+  border: 1px solid #ccf2e8;
 }
 
 /* Responsive layout */
@@ -316,5 +409,9 @@
   .checkout-btn {
     padding: 12px;
     font-size: 15px;
+  }
+  
+  .error-message {
+    font-size: 11px;
   }
 }

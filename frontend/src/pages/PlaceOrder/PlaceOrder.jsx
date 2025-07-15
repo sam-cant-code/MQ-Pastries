@@ -10,8 +10,77 @@ const Checkout = () => {
   // Use StoreContext to get cart and total functions
   const { getTotalCartAmount, token, pastery_list, cartItems, url } = useContext(StoreContext);
 
-  const onCheckout = async(event) =>{
+  const [data, setData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    street: "",
+    city: "",
+    state: "",
+    zipcode: "",
+    country: "",
+    phone: ""
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const onChangeHandler = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
+    setData(data => ({ ...data, [name]: value }));
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors(errors => ({ ...errors, [name]: "" }));
+    }
+  };
+
+  // Validation functions
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!data.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!data.lastName.trim()) newErrors.lastName = "Last name is required";
+    if (!data.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(data.email)) {
+      newErrors.email = "Please enter a valid email address";
+    }
+    if (!data.street.trim()) newErrors.street = "Street address is required";
+    if (!data.city.trim()) newErrors.city = "City is required";
+    if (!data.state.trim()) newErrors.state = "State is required";
+    if (!data.zipcode.trim()) newErrors.zipcode = "Zip code is required";
+    if (!data.country.trim()) newErrors.country = "Country is required";
+    if (!data.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^\+?[\d\s\-\(\)]+$/.test(data.phone)) {
+      newErrors.phone = "Please enter a valid phone number";
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  // Check if form is valid (all fields filled)
+  const isFormValid = () => {
+    return data.firstName.trim() && 
+           data.lastName.trim() && 
+           data.email.trim() && 
+           data.street.trim() && 
+           data.city.trim() && 
+           data.state.trim() && 
+           data.zipcode.trim() && 
+           data.country.trim() && 
+           data.phone.trim();
+  };
+
+  const onCheckout = async(event) => {
     event.preventDefault();
+    
+    // Validate form before proceeding
+    if (!validateForm()) {
+      return;
+    }
     
     try {
       let orderItems = [];
@@ -129,24 +198,6 @@ const Checkout = () => {
       alert("Network error: " + error.message);
     }
   }
-
-  const [data, setData] = useState({
-    firstName: "",
-    lastName: "",
-    email: "",
-    street: "",
-    city: "",
-    state: "",
-    zipcode: "",
-    country: "",
-    phone: ""
-  });
-
-  const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
-    setData(data => ({ ...data, [name]: value }));
-  };
 
   // FIXED: Helper function to get price for a specific variation
   const getVariationPrice = (item, variationKey) => {
@@ -288,83 +339,119 @@ const Checkout = () => {
           <h2>Delivery Information</h2>
           <form className="delivery-form">
             <div className="form-row">
-              <input 
-                name="firstName" 
-                type="text" 
-                onChange={onChangeHandler} 
-                value={data.firstName} 
-                placeholder="First name" 
-                required
-              />
-              <input 
-                name="lastName" 
-                type="text" 
-                onChange={onChangeHandler} 
-                value={data.lastName} 
-                placeholder="Last name" 
-                required
-              />
+              <div className="form-field">
+                <input 
+                  name="firstName" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.firstName} 
+                  placeholder="First name" 
+                  className={errors.firstName ? 'error' : ''}
+                  required
+                />
+                {errors.firstName && <span className="error-message">{errors.firstName}</span>}
+              </div>
+              <div className="form-field">
+                <input 
+                  name="lastName" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.lastName} 
+                  placeholder="Last name" 
+                  className={errors.lastName ? 'error' : ''}
+                  required
+                />
+                {errors.lastName && <span className="error-message">{errors.lastName}</span>}
+              </div>
             </div>
-            <input 
-              name="email" 
-              type="email" 
-              onChange={onChangeHandler} 
-              value={data.email} 
-              placeholder="Email address" 
-              required
-            />
-            <input 
-              name="street" 
-              type="text" 
-              onChange={onChangeHandler} 
-              value={data.street} 
-              placeholder="Street" 
-              required
-            />
-            <div className="form-row">
+            <div className="form-field">
               <input 
-                name="city" 
-                type="text" 
+                name="email" 
+                type="email" 
                 onChange={onChangeHandler} 
-                value={data.city} 
-                placeholder="City" 
+                value={data.email} 
+                placeholder="Email address" 
+                className={errors.email ? 'error' : ''}
                 required
               />
+              {errors.email && <span className="error-message">{errors.email}</span>}
+            </div>
+            <div className="form-field">
               <input 
-                name="state" 
+                name="street" 
                 type="text" 
                 onChange={onChangeHandler} 
-                value={data.state} 
-                placeholder="State" 
+                value={data.street} 
+                placeholder="Street" 
+                className={errors.street ? 'error' : ''}
                 required
               />
+              {errors.street && <span className="error-message">{errors.street}</span>}
             </div>
             <div className="form-row">
-              <input 
-                name="zipcode" 
-                type="text" 
-                onChange={onChangeHandler} 
-                value={data.zipcode} 
-                placeholder="Zip code" 
-                required
-              />
-              <input 
-                name="country" 
-                type="text" 
-                onChange={onChangeHandler} 
-                value={data.country} 
-                placeholder="Country" 
-                required
-              />
+              <div className="form-field">
+                <input 
+                  name="city" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.city} 
+                  placeholder="City" 
+                  className={errors.city ? 'error' : ''}
+                  required
+                />
+                {errors.city && <span className="error-message">{errors.city}</span>}
+              </div>
+              <div className="form-field">
+                <input 
+                  name="state" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.state} 
+                  placeholder="State" 
+                  className={errors.state ? 'error' : ''}
+                  required
+                />
+                {errors.state && <span className="error-message">{errors.state}</span>}
+              </div>
             </div>
-            <input 
-              name="phone" 
-              type="tel" 
-              onChange={onChangeHandler} 
-              value={data.phone} 
-              placeholder="Phone" 
-              required
-            />
+            <div className="form-row">
+              <div className="form-field">
+                <input 
+                  name="zipcode" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.zipcode} 
+                  placeholder="Zip code" 
+                  className={errors.zipcode ? 'error' : ''}
+                  required
+                />
+                {errors.zipcode && <span className="error-message">{errors.zipcode}</span>}
+              </div>
+              <div className="form-field">
+                <input 
+                  name="country" 
+                  type="text" 
+                  onChange={onChangeHandler} 
+                  value={data.country} 
+                  placeholder="Country" 
+                  className={errors.country ? 'error' : ''}
+                  required
+                />
+                {errors.country && <span className="error-message">{errors.country}</span>}
+              </div>
+            </div>
+            <div className="form-field">
+              <input 
+                name="phone" 
+                type="tel" 
+                onChange={onChangeHandler} 
+                value={data.phone} 
+                placeholder="Phone" 
+                className={errors.phone ? 'error' : ''}
+                required
+              />
+              {errors.phone && <span className="error-message">{errors.phone}</span>}
+            </div>
           </form>
         </div>
 
@@ -421,11 +508,13 @@ const Checkout = () => {
             </div>
           </div>
           
-         
-          
           {/* Payment button */}
-          <button onClick={onCheckout} className="checkout-btn">
-            Proceed to Payment
+          <button 
+            onClick={onCheckout} 
+            className={`checkout-btn ${!isFormValid() ? 'disabled' : ''}`}
+            disabled={!isFormValid()}
+          >
+            {!isFormValid() ? 'Fill Required Fields to Proceed ' : 'Proceed to Payment'}
           </button>
         </div>
       </div>

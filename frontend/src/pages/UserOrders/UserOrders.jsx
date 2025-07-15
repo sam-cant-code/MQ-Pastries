@@ -75,6 +75,12 @@ const UserOrders = () => {
     setExpandedOrders(newExpanded);
   };
 
+  // Helper function to format order ID - show last 8 characters
+  const formatOrderId = (orderId) => {
+    if (!orderId) return 'Unknown ID';
+    return `#${orderId.slice(-8)}`;
+  };
+
   // Improved helper function to format item name with variation
   const formatItemNameWithVariation = (item) => {
     if (!item || !item.name) return 'Unknown item';
@@ -203,7 +209,7 @@ const UserOrders = () => {
                 <div className="order-main-info">
                   <div className="order-info-item">
                     <span className="label">Order ID</span>
-                    <span className="value order-id">{getOrderProperty(order, '_id', 'Unknown ID')}</span>
+                    <span className="value order-id">{formatOrderId(order._id)}</span>
                   </div>
                   
                   <div className="order-info-item">
