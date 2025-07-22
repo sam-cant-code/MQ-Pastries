@@ -3,6 +3,7 @@ import './PlaceOrder.css';
 import { StoreContext } from '../../context/StoreContext.jsx';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { validPincodes } from '../../data/pincodes.js';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -18,7 +19,7 @@ const Checkout = () => {
     city: "",
     state: "",
     zipcode: "",
-    country: "",
+    country: "India", // Set default country to India
     phone: ""
   });
 
@@ -27,7 +28,21 @@ const Checkout = () => {
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
-    setData(data => ({ ...data, [name]: value }));
+    
+    // If state is changed, clear zipcode
+    if (name === 'state') {
+      setData(data => ({ ...data, [name]: value, zipcode: "" }));
+      // Clear zipcode error when state changes
+      if (errors.zipcode) {
+        setErrors(errors => ({ ...errors, zipcode: "" }));
+      }
+    } else if (name === 'zipcode') {
+      // Only allow numeric input for zipcode
+      const numericValue = value.replace(/\D/g, '');
+      setData(data => ({ ...data, [name]: numericValue }));
+    } else {
+      setData(data => ({ ...data, [name]: value }));
+    }
     
     // Clear error when user starts typing
     if (errors[name]) {
@@ -48,8 +63,27 @@ const Checkout = () => {
     }
     if (!data.street.trim()) newErrors.street = "Street address is required";
     if (!data.city.trim()) newErrors.city = "City is required";
-    if (!data.state.trim()) newErrors.state = "State is required";
-    if (!data.zipcode.trim()) newErrors.zipcode = "Zip code is required";
+    if (!data.state.trim()) {
+      newErrors.state = "State is required";
+    } else if (!validPincodes[data.state]) {
+      newErrors.state = "Please select Tamil Nadu or Karnataka";
+    }
+    if (!data.zipcode.trim()) {
+      newErrors.zipcode = "Pincode is required";
+    } else {
+      // Validate pincode length (Indian pincodes are 6 digits)
+      if (data.zipcode.length !== 6) {
+        newErrors.zipcode = "Pincode must be 6 digits";
+      } else {
+        // Validate pincode based on selected state
+        const pincode = parseInt(data.zipcode);
+        if (data.state && validPincodes[data.state]) {
+          if (!validPincodes[data.state].includes(pincode)) {
+            newErrors.zipcode = `Invalid pincode for ${data.state}. We don't deliver to this area yet.`;
+          }
+        }
+      }
+    }
     if (!data.country.trim()) newErrors.country = "Country is required";
     if (!data.phone.trim()) {
       newErrors.phone = "Phone number is required";
@@ -337,6 +371,16 @@ const Checkout = () => {
       <div className="checkout-content">
         <div className="checkout-left">
           <h2>Delivery Information</h2>
+          
+          {/* Free Shipping Notice */}
+          <div className="shipping-notice">
+            <div className="shipping-icon">🚚</div>
+            <div className="shipping-text">
+              We currently deliver only to <strong>Karnataka</strong> and <strong>Tamil Nadu</strong> <br />
+              Enjoy free shipping on all orders!
+            </div>
+          </div>
+          
           <form className="delivery-form">
             <div className="form-row">
               <div className="form-field">
@@ -402,15 +446,18 @@ const Checkout = () => {
                 {errors.city && <span className="error-message">{errors.city}</span>}
               </div>
               <div className="form-field">
-                <input 
+                <select 
                   name="state" 
-                  type="text" 
                   onChange={onChangeHandler} 
                   value={data.state} 
-                  placeholder="State" 
                   className={errors.state ? 'error' : ''}
                   required
-                />
+                >
+                  <option value="">Select State</option>
+                  {Object.keys(validPincodes).map(state => (
+                    <option key={state} value={state}>{state}</option>
+                  ))}
+                </select>
                 {errors.state && <span className="error-message">{errors.state}</span>}
               </div>
             </div>
@@ -421,11 +468,20 @@ const Checkout = () => {
                   type="text" 
                   onChange={onChangeHandler} 
                   value={data.zipcode} 
-                  placeholder="Zip code" 
+                  placeholder="Enter 6-digit pincode"
                   className={errors.zipcode ? 'error' : ''}
+                  maxLength={6}
+                  pattern="\d{6}"
                   required
                 />
                 {errors.zipcode && <span className="error-message">{errors.zipcode}</span>}
+                {!errors.zipcode && data.state && data.zipcode.length === 6 && (
+                  <span className="info-message">
+                    {validPincodes[data.state]?.includes(parseInt(data.zipcode)) 
+                      ? "✓ Delivery available" 
+                      : "⚠ We don't deliver to this pincode yet"}
+                  </span>
+                )}
               </div>
               <div className="form-field">
                 <input 
@@ -435,6 +491,7 @@ const Checkout = () => {
                   value={data.country} 
                   placeholder="Country" 
                   className={errors.country ? 'error' : ''}
+                  readOnly
                   required
                 />
                 {errors.country && <span className="error-message">{errors.country}</span>}
@@ -501,6 +558,9 @@ const Checkout = () => {
             <div className="cart-total-row">
               <span>Delivery Fee</span>
               <span>₹{deliveryFee.toFixed(2)}</span>
+            </div>
+            <div className="shipping-info">
+              <small>✓ Inaugural offer: Free shipping within Karnataka & Tamil Nadu</small>
             </div>
             <div className="cart-total-row total">
               <span>Total Amount</span>

@@ -9,6 +9,7 @@ const FoodDisplay = () => {
         cartItems, 
         addToCart, 
         removeFromCart, 
+        decreaseQuantity, // Add this to your StoreContext if not already there
         url,
         searchQuery,
         category,
@@ -128,7 +129,7 @@ const FoodDisplay = () => {
         const id = Date.now();
         const newToast = { id, message, type, isVisible: false };
 
-        setToasts(prev => [...prev, newToast]);
+        setToasts([newToast]);
 
         setTimeout(() => {
             setToasts(prev => prev.map(toast =>
@@ -154,23 +155,53 @@ const FoodDisplay = () => {
         ));
 
         setTimeout(() => {
-            setToasts(prev => prev.filter(toast => toast.id !== id));
+            setToasts([]);
         }, 300);
     };
 
     // Add to cart with toast (include variation info)
     const handleAddToCart = (itemId, itemName, variationKey) => {
-        // You might want to modify your addToCart function to handle variations
-        addToCart(itemId, variationKey);
-        const variationLabel = variationKey ? ` (${variationKey})` : '';
-        showToast(`${itemName}${variationLabel} added to cart!`, 'success');
+        try {
+            addToCart(itemId, variationKey);
+            const variationLabel = variationKey ? ` (${variationKey})` : '';
+            showToast(`${itemName}${variationLabel} added to cart!`, 'success');
+        } catch (error) {
+            console.error('Error adding to cart:', error);
+            showToast('Error adding to cart', 'error');
+        }
     };
 
-    // Remove from cart with toast
+    // NEW: Decrease quantity function similar to your cart component
+    const handleDecreaseQuantity = (cartKey, itemName, variationKey) => {
+        try {
+            const itemId = cartKey.includes('_') ? cartKey.split('_')[0] : cartKey;
+            const decodedVariationKey = variationKey ? decodeURIComponent(variationKey) : null;
+            
+            // Use decreaseQuantity if available, otherwise fallback to removeFromCart
+            if (decreaseQuantity) {
+                decreaseQuantity(itemId, decodedVariationKey);
+            } else {
+                removeFromCart(itemId, decodedVariationKey);
+            }
+            
+            const variationLabel = variationKey ? ` (${decodeURIComponent(variationKey)})` : '';
+            showToast(`Decreased quantity of ${itemName}${variationLabel}`, 'info');
+        } catch (error) {
+            console.error('Error decreasing quantity:', error);
+            showToast('Error updating quantity', 'error');
+        }
+    };
+
+    // Remove from cart with toast (kept for complete removal if needed)
     const handleRemoveFromCart = (itemId, itemName, variationKey) => {
-        removeFromCart(itemId, variationKey);
-        const variationLabel = variationKey ? ` (${variationKey})` : '';
-        showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
+        try {
+            removeFromCart(itemId, variationKey);
+            const variationLabel = variationKey ? ` (${variationKey})` : '';
+            showToast(`${itemName}${variationLabel} removed from cart!`, 'info');
+        } catch (error) {
+            console.error('Error removing from cart:', error);
+            showToast('Error removing from cart', 'error');
+        }
     };
 
     // Get display title based on category and search
@@ -253,7 +284,7 @@ const FoodDisplay = () => {
                     >
                         <div className="toast-content">
                             <div className="toast-icon">
-                                {toast.type === 'success' ? '✓' : 'ℹ'}
+                                {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✗' : 'ℹ'}
                             </div>
                             <span className="toast-message">{toast.message}</span>
                         </div>
@@ -327,7 +358,7 @@ const FoodDisplay = () => {
                                         ) : (
                                             <div className='food-item-counter'>
                                                 <div
-                                                    onClick={() => handleRemoveFromCart(item._id, item.name, currentVariation)}
+                                                    onClick={() => handleDecreaseQuantity(cartKey, item.name, currentVariation)}
                                                     className='counter-btn minus-btn'
                                                 >
                                                     −

@@ -25,21 +25,26 @@ const Cart = () => {
     });
   }, []);
 
-  // Toast logic
+  // Toast logic - only one toast at a time
   const showToast = (message, type = 'success') => {
     const id = Date.now();
-    setToasts(prev => [...prev, { id, message, type, isVisible: false }]);
+    const newToast = { id, message, type, isVisible: false };
+    
+    // Clear existing toasts and set new one
+    setToasts([newToast]);
+    
     setTimeout(() => {
       setToasts(prev => prev.map(toast =>
         toast.id === id ? { ...toast, isVisible: true } : toast
       ));
     }, 100);
+    
     setTimeout(() => {
       setToasts(prev => prev.map(toast =>
         toast.id === id ? { ...toast, isVisible: false } : toast
       ));
       setTimeout(() => {
-        setToasts(prev => prev.filter(toast => toast.id !== id));
+        setToasts([]);
       }, 300);
     }, 2500);
   };
@@ -160,7 +165,7 @@ const Cart = () => {
 
   return (
     <div className="cart">
-      {/* Toasts */}
+      {/* Toasts - Single toast only */}
       <div className="toast-container-bottom">
         {toasts.map(toast => (
           <div
@@ -168,8 +173,17 @@ const Cart = () => {
             className={`toast-bottom toast-${toast.type} ${toast.isVisible ? 'toast-visible' : ''}`}
           >
             <div className="toast-content">
+              <div className="toast-icon">
+                {toast.type === 'success' ? '✓' : toast.type === 'error' ? '✗' : 'ℹ'}
+              </div>
               <span className="toast-message">{toast.message}</span>
             </div>
+            <button
+              className="toast-close-btn"
+              onClick={() => setToasts([])}
+            >
+              ×
+            </button>
           </div>
         ))}
       </div>

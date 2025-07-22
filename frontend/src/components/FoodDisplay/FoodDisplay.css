@@ -25,7 +25,7 @@
   
   /* New counter button variables */
   --counter-bg: #ffffff;
-  --counter-border: #d2b48c;
+  --counter-border: white;
   --counter-text: #8b4513;
   --counter-hover-bg: #8b4513;
   --counter-hover-text: #ffffff;
