@@ -1,17 +1,18 @@
-import express from "express"
-import cors from "cors"
-import { connectDB } from "./config/db.js"
-import foodRouter from "./routes/foodRoute.js"
-import "dotenv/config"
-import userRouter from "./routes/userRoute.js"
-import cartRouter from "./routes/cartRoute.js"
-import orderRouter from "./routes/orderRoute.js"    
+import express from "express";
+import cors from "cors";
+import { connectDB } from "./config/db.js";
+import foodRouter from "./routes/foodRoute.js";
+import "dotenv/config";
+import userRouter from "./routes/userRoute.js";
+import cartRouter from "./routes/cartRoute.js";
+import orderRouter from "./routes/orderRoute.js";
 
-//app config
-const app = express()
-const port = process.env.PORT || 4000
+// App config
+const app = express();
+const port = process.env.PORT || 4000;
 
-//middleware - CORS MUST come FIRST
+// Middleware
+// CORS MUST come FIRST to handle pre-flight requests
 app.use(cors({
     origin: [
         "http://localhost:5174",
@@ -21,24 +22,30 @@ app.use(cors({
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'token']
-}))
+}));
 
-app.use(express.json())
+// This middleware is for parsing JSON bodies
+app.use(express.json());
 
-//api endpoints
-app.use("/api/food", foodRouter)
-app.use("/images", express.static('uploads'))
-app.use("/api/user", userRouter)
-app.use("/api/cart", cartRouter)
-app.use("/api/order", orderRouter)
+// --- Static file serving for images ---
+// This line makes the 'uploads' folder public at the '/images' URL
+app.use("/images", express.static('uploads'));
 
-//connect with database
-connectDB()
+// API endpoints
+app.use("/api/food", foodRouter);
+app.use("/api/user", userRouter);
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 
-app.get("/", (req,res)=>{
-    res.send("API Working")
-})
+// Connect to the database
+connectDB();
 
-app.listen(port, ()=>{
-    console.log(`Server Started on localhost:${port}`)
-})
+// Default route to check if the API is running
+app.get("/", (req, res) => {
+    res.send("API Working");
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Server Started on http://localhost:${port}`);
+});

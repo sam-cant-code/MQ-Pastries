@@ -1,0 +1,144 @@
+/* --- AdminPanel.css --- */
+
+/* Main container for the entire admin panel */
+.admin-panel {
+  width: 100%;
+  max-width: 1400px;
+  margin: 30px auto;
+  padding: 25px 35px;
+  background-color: #f9fafb; /* Light gray background */
+}
+
+/* Flex container for sidebar and content */
+.admin-panel-content {
+  display: flex;
+  gap: 30px;
+}
+
+/* --- Sidebar Navigation --- */
+.admin-sidebar {
+  flex: 0 0 250px; /* Sidebar with a fixed width */
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+  height: fit-content;
+}
+
+.sidebar-title h1 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column; /* Stack buttons vertically */
+  gap: 10px;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #d1d5db;
+  background-color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
+  transition: all 0.2s ease-in-out;
+}
+
+.nav-btn .icon {
+  font-size: 1.2rem;
+}
+
+.nav-btn .nav-text {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.nav-btn:hover:not(.active) {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.nav-btn.active {
+  background-color: #3b82f6; /* Blue for active state */
+  color: white;
+  border-color: #3b82f6;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+/* --- Main Content Area --- */
+.admin-content {
+  flex: 1; /* Takes up the remaining space */
+  width: 100%;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* --- Responsive Styles for Mobile --- */
+@media (max-width: 900px) {
+  .admin-panel-content {
+    flex-direction: column; /* Stack sidebar on top of content */
+    gap: 25px;
+  }
+
+  .admin-sidebar {
+    flex-basis: auto; /* Allow sidebar to size naturally */
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-panel {
+    width: 100%;
+    margin: 0;
+    padding: 15px;
+    background-color: #ffffff; /* White background on mobile */
+  }
+
+  .admin-sidebar, .admin-content {
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .sidebar-title {
+    display: none; /* Hide sidebar title on mobile */
+  }
+
+  .admin-nav {
+    flex-direction: row; /* Make nav horizontal again */
+    gap: 10px;
+    padding-bottom: 10px; /* Space for scrollbar */
+    border-bottom: 1px solid #e5e7eb;
+    margin-bottom: 20px;
+  }
+
+  .nav-btn {
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+    justify-content: center;
+    padding: 12px;
+    width: 50px;
+    height: 50px;
+  }
+
+  /* Hide the text on smaller screens */
+  .nav-btn .nav-text {
+    display: none;
+  }
+}

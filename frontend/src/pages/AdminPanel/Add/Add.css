@@ -1,0 +1,220 @@
+/* ==========================================================================
+   Add Component - Professional Styling
+   ========================================================================== */
+
+/* --- CSS Variables for Easy Theming --- */
+:root {
+  --primary-color: #4a90e2; /* Modern blue */
+  --primary-hover-color: #357abd;
+  --danger-color: #e57373; /* Softer red */
+  --light-bg-color: #ffffff;
+  --dark-text-color: #333;
+  --light-text-color: #666;
+  --border-color: #e0e0e0;
+  --form-bg-color: #f8f9fa;
+  --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --border-radius: 8px;
+}
+
+/* --- Main Component Layout --- */
+.add-component {
+  width: 95%;
+  max-width: 700px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: var(--light-bg-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  color: var(--dark-text-color);
+}
+
+.add-form h2 {
+  text-align: center;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--dark-text-color);
+}
+
+/* --- General Form Group Styling --- */
+.add-form .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.add-form input,
+.add-form select,
+.add-form textarea {
+  width: 100%;
+  padding: 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+}
+
+.add-form input:focus,
+.add-form select:focus,
+.add-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+}
+
+.add-form input::placeholder,
+.add-form textarea::placeholder {
+  color: #999;
+}
+
+/* --- Drag and Drop Zone --- */
+.drop-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s, background-color 0.3s;
+  background-color: var(--form-bg-color);
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.drop-zone.dragging {
+  border-color: var(--primary-color);
+  background-color: #e9f5ff;
+}
+
+.drop-zone-prompt img {
+  width: 50px;
+  height: 50px;
+  margin-bottom: 1rem;
+  opacity: 0.6;
+}
+
+.drop-zone-prompt p {
+  margin: 5px 0;
+  color: var(--light-text-color);
+  font-weight: 500;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 200px;
+  border-radius: var(--border-radius);
+  object-fit: cover;
+}
+
+/* --- Variations Section --- */
+.variations-section {
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--form-bg-color);
+}
+
+.variations-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.variation-row {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.variation-row input {
+  flex-grow: 1;
+}
+
+.btn-add-variation,
+.btn-remove-variation {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-add-variation:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.btn-remove-variation {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+  padding: 0.5rem;
+  line-height: 1;
+  font-size: 1.2rem;
+}
+
+.btn-remove-variation:hover {
+  background-color: var(--danger-color);
+  color: white;
+}
+
+.btn-remove-variation:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: transparent;
+    color: #ccc;
+    border-color: #ccc;
+}
+
+/* --- Submit Button --- */
+.btn-submit {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: background-color 0.2s, box-shadow 0.2s;
+  margin-top: 1rem;
+}
+
+.btn-submit:hover {
+  background-color: var(--primary-hover-color);
+  box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4);
+}
+
+.btn-submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+  .add-component {
+    width: 100%;
+    padding: 1rem;
+    margin: 1rem 0;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .variation-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

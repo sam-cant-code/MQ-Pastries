@@ -1,5 +1,6 @@
 import FoodModel from '../models/FoodModel.js'
 import fs from 'fs';
+import path from 'path';
 
 // Add food item
 const addFood = async (req, res) => {
@@ -204,43 +205,100 @@ const editFood = async (req, res) => {
   }
 };
 
-// Delete food item
+
 const deleteFood = async (req, res) => {
   try {
-    console.log("🧾 Request body:", req.body);
+    console.log("🧾 Request params:", req.params);
+    console.log("👤 Admin user:", req.user);
 
-    if (!req.body.id) {
-      console.log("⚠️ No ID provided");
-      return res.status(400).json({ success: false, message: "No ID provided" });
+    // Get ID from URL parameter
+    const foodId = req.params.id;
+
+    if (!foodId) {
+      console.log("⚠️ No ID provided in URL");
+      return res.status(400).json({ 
+        success: false, 
+        message: "Food ID is required in URL" 
+      });
     }
 
-    const food = await FoodModel.findById(req.body.id);
+    
+
+    // Find the food item
+    const food = await FoodModel.findById(foodId);
 
     if (!food) {
-      console.log("❌ Food not found in DB for ID:", req.body.id);
-      return res.status(404).json({ success: false, message: "Food item not found" });
+      console.log("❌ Food not found in DB for ID:", foodId);
+      return res.status(404).json({ 
+        success: false, 
+        message: "Food item not found" 
+      });
     }
 
-    console.log("📦 Found food:", food);
+    console.log("📦 Found food:", {
+      id: food._id,
+      name: food.name,
+      image: food.image
+    });
 
-    // Delete the image
-    const imagePath = `uploads/${food.image}`;
-    fs.unlink(imagePath, (err) => {
-      if (err) {
-        console.error("🛑 Failed to delete image file:", err.message);
+    // Delete the image file if it exists
+    if (food.image) {
+      const imagePath = path.join('uploads', food.image);
+      
+      // Check if file exists before trying to delete
+      if (fs.existsSync(imagePath)) {
+        try {
+          fs.unlinkSync(imagePath); // Using sync version for better error handling
+          console.log("🗑️ Successfully deleted image:", food.image);
+        } catch (fileError) {
+          console.error("🛑 Failed to delete image file:", fileError.message);
+          // Continue with database deletion even if file deletion fails
+        }
       } else {
-        console.log("🗑️ Deleted image:", food.image);
+        console.log("⚠️ Image file not found:", imagePath);
+      }
+    } else {
+      console.log("ℹ️ No image associated with this food item");
+    }
+
+    // Delete from database
+    const deletedFood = await FoodModel.findByIdAndDelete(foodId);
+    
+    if (!deletedFood) {
+      console.log("❌ Failed to delete from database");
+      return res.status(500).json({ 
+        success: false, 
+        message: "Failed to delete food item from database" 
+      });
+    }
+
+    console.log("✅ Food item deleted successfully:", deletedFood.name);
+
+    res.json({ 
+      success: true, 
+      message: "Food item deleted successfully",
+      deletedItem: {
+        id: deletedFood._id,
+        name: deletedFood.name
       }
     });
 
-    await FoodModel.findByIdAndDelete(req.body.id);
-    console.log("✅ Food item deleted");
-
-    res.json({ success: true, message: "Food Removed" });
-
   } catch (error) {
     console.error("🔥 Unhandled error in deleteFood:", error);
-    res.status(500).json({ success: false, message: "Failed to delete food item" });
+    
+    // Handle specific MongoDB errors
+    if (error.name === 'CastError') {
+      return res.status(400).json({ 
+        success: false, 
+        message: "Invalid food ID format" 
+      });
+    }
+    
+    res.status(500).json({ 
+      success: false, 
+      message: "Internal server error while deleting food item",
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 };
 

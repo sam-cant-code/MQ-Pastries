@@ -9,7 +9,8 @@ import LoginPopUp from './components/LoginPopUp/LoginPopUp'
 import { ToastContainer, toast } from 'react-toastify';
 import Verify from './pages/Verify/Verify'
 import UserOrders from './pages/UserOrders/UserOrders'
-
+import AdminPanel from './pages/AdminPanel/AdminPanel'
+import ProtectedRoute from './components/ProtectedRoutes/ProtectedRoutes'
 
 const App = () => {
   <ToastContainer/>
@@ -102,6 +103,15 @@ const App = () => {
           <Route path='/order' element={<PlaceOrder/>}/>
           <Route path='/verify' element={<Verify/>}/>
           <Route path='/myorders' element={<UserOrders/>}/>
+          <Route path='/adminpanel' element={<AdminPanel/>}/>
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute adminOnly={true}>
+                <AdminPanel/>
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </div>
       

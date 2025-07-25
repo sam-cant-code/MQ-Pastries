@@ -21,7 +21,12 @@ const loginUser = async (req, res) => {
         }
 
         const token = createToken(user._id);
-        res.json({ success: true, token, name: user.name }); // ✅ Include name
+        res.json({ 
+            success: true, 
+            token, 
+            name: user.name,
+            role: user.role // Include role in response for frontend use
+        });
 
     } catch (error) {
         console.log(error);
@@ -29,14 +34,15 @@ const loginUser = async (req, res) => {
     }
 };
 
-
 const createToken = (id) => {
-    return jwt.sign({id},process.env.JWT_SECRET)
+    return jwt.sign({id}, process.env.JWT_SECRET)
 }
 
 //register user
 const registerUser = async (req, res) => {
+    // Only extract allowed fields - ignoring any 'role' field sent by client
     const { name, password, email } = req.body;
+    
     try {
         const exists = await userModel.findOne({ email });
         if (exists) {
@@ -57,14 +63,20 @@ const registerUser = async (req, res) => {
         const newUser = new userModel({
             name,
             email,
-            password: hashedPassword
+            password: hashedPassword,
+            // role: 'user' is set by default in schema, but you can be explicit:
+            role: 'user' // Explicitly set as user, ignoring any role from request
         });
 
         const user = await newUser.save();
         const token = createToken(user._id);
 
-        res.json({ success: true, token, name: user.name }); // ✅ Add name here
-
+        res.json({ 
+            success: true, 
+            token, 
+            name: user.name,
+            role: user.role // Include role in response
+        });
 
     } catch (error) {
         console.error("Registration error:", error.message);
@@ -89,7 +101,7 @@ const sendResetOtp = async (req,res) => {
         const otp = String(Math.floor(100000+Math.random()*(900000)))
 
         user.resetOtp = otp;
-        user.resetOtpExpire = Date.now() + 5 * 50 * 1000
+        user.resetOtpExpire = Date.now() + 5 * 60 * 1000 // Fixed: was 5 * 50 * 1000
 
         await user.save()
 
@@ -104,18 +116,22 @@ const sendResetOtp = async (req,res) => {
 
         return res.json({success:true, message:"otp sent to mail successfuly!"});
 
-
     } catch (error) {
         return res.json({success:false, message:error.message});
     }
 }
 
 const resetPassword = async (req,res)=>{
-
+    // Only extract allowed fields for password reset
     const {email, otp, newPassword} = req.body;
         
     if(!email || !otp || !newPassword){
         return res.json({success:false, message:'email, otp, and new password Required'})
+    }
+
+    // Add password validation
+    if (newPassword.length < 8) {
+        return res.json({ success: false, message: "New password must be at least 8 characters long!" });
     }
 
     try {
@@ -146,5 +162,26 @@ const resetPassword = async (req,res)=>{
     }
 }
 
+const verifyAuth = async (req, res) => {
+    try {
+        // The authenticateUser middleware already validates the token
+        // and attaches user info to req.user
+        res.json({
+            success: true,
+            authenticated: true,
+            user: {
+                id: req.user.id,
+                email: req.user.email,
+                role: req.user.role
+            }
+        });
+    } catch (error) {
+        console.error("Auth verification error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Server error during authentication verification"
+        });
+    }
+};
 
-export {loginUser, registerUser, resetPassword, sendResetOtp}
+export {loginUser, registerUser, resetPassword, sendResetOtp, verifyAuth}

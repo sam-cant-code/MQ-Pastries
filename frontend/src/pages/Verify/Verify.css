@@ -1,22 +1,88 @@
+/* src/pages/Verify/Verify.css */
+
+.verify-container {
+  min-height: 60vh;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background-color: #f9f9f9; /* A very light off-white for the background */
+}
+
+.verification-box {
+  width: 100%;
+  max-width: 500px;
+  background-color: #ffffff;
+  padding: 30px 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  border-top: 5px solid #8B4513; /* A solid saddle brown color for the top border */
+}
+
+.verification-box h2 {
+  font-size: 2rem;
+  color: #5D4037; /* A deep brown for headings */
+  margin-bottom: 15px;
+}
+
+.verification-box p {
+  font-size: 1rem;
+  color: #795548; /* A lighter brown for paragraph text */
+  line-height: 1.6;
+}
+
+/* --- Spinner Animation --- */
 .spinner {
-  margin: 100px auto;
-  width: 60px;
-  height: 60px;
-  border: 8px solid #d2b48c;         /* light brown */
-  border-top: 8px solid #6b3f19;     /* dark brown */
+  width: 70px;
+  height: 70px;
+  border: 8px solid #EFEBE9; /* A light beige for the spinner track */
+  border-top-color: #8B4513; /* Saddle brown for the moving part of the spinner */
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  background: transparent;
-  display: block;
+  animation: spin 1.2s linear infinite;
+  margin-bottom: 25px;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.verify-page {
-  background: #f5eee6; /* very light brown */
-  color: #6b3f19;      /* dark brown */
-  font-family: 'Segoe UI', 'Arial', sans-serif;
+/* --- Success and Failure Icons --- */
+.verification-box .icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  line-height: 1;
+}
+
+.verification-box.success {
+  border-top-color: #4CAF50; /* Green for success */
+}
+.verification-box.success .icon {
+  color: #4CAF50;
+}
+
+.verification-box.failure {
+  border-top-color: #F44336; /* Red for failure */
+}
+.verification-box.failure .icon {
+  color: #F44336;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 600px) {
+  .verification-box {
+    padding: 25px 20px;
+  }
+  .verification-box h2 {
+    font-size: 1.5rem;
+  }
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border-width: 6px;
+  }
 }
