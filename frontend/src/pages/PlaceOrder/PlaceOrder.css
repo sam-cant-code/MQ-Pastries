@@ -315,8 +315,11 @@
   color: #8B4513;
 }
 
+/* ✅ FIXED: Quantity is now visible */
 .quantity {
-  color: white;
+  color: #8B4513;
+  background-color: #f9f6f2;
+  border: 1px solid #e5e5e5;
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -464,17 +467,18 @@
 .shipping-notice {
   display: flex;
   align-items: center;
-  background: #e8f5e8;
-  border: 1px solid #4caf50;
+  background: #f0f7f0;
+  border: 1px solid #a5d6a7;
+  border-left: 4px solid #4caf50;
   border-radius: 8px;
   padding: 12px 16px;
-  margin: 16px 0;
+  margin: 20px 0;
   color: #2e7d32;
 }
 
 .shipping-icon {
   font-size: 20px;
-  margin-right: 10px;
+  margin-right: 12px;
 }
 
 .shipping-text {
@@ -487,7 +491,7 @@
     gap: 30px;
     margin-left: 0;
   }
-  
+
   .checkout-right {
     position: static;
     max-width: none;
@@ -498,7 +502,7 @@
   .checkout-navigation {
     padding: 0 20px;
   }
-  
+
   .back-btn {
     width: 100%;
     text-align: center;
@@ -512,6 +516,7 @@
 
   .form-row {
     flex-direction: column;
+    gap: 15px;
   }
 
   .form-field {
@@ -533,7 +538,7 @@
     border-radius: 10px;
     margin-bottom: 10px;
     background-color: white;
-    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.1);
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.05);
   }
 
   .cart-item-row:hover {
@@ -566,15 +571,9 @@
     padding-top: 8px;
     border-top: 1px dotted #ddd;
   }
-
-  .mobile-row span:first-child {
-    color: #a0522d;
-    font-weight: 500;
-  }
-
-  .mobile-row span:last-child {
-    color: #8B4513;
-    font-weight: 600;
+  
+  .mobile-row strong {
+      color: #8B4513;
   }
 
   .bill-totals {
@@ -586,6 +585,11 @@
 @media (max-width: 480px) {
   .checkout-content {
     padding: 15px;
+    margin-left: 0;
+  }
+  
+  .checkout-navigation {
+      padding: 0 15px;
   }
 
   .checkout-right {
@@ -612,7 +616,7 @@
     padding: 14px;
     font-size: 15px;
   }
-  
+
   .error-message {
     font-size: 11px;
   }
@@ -624,7 +628,6 @@
   }
 }
 
-/* ✅ NEW: Styles for very small devices */
 @media (max-width: 400px) {
   .checkout-content {
     padding: 10px;
@@ -646,15 +649,15 @@
   .checkout-right h2 {
     font-size: 16px;
   }
-  
+
   .item-name {
     font-size: 14px;
   }
-  
+
   .variation-info {
     font-size: 11px;
   }
-  
+
   .mobile-row {
     font-size: 13px;
   }

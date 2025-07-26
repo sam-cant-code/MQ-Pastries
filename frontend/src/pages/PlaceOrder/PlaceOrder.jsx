@@ -1,4 +1,3 @@
-// src/pages/PlaceOrder/Checkout.jsx
 import React, { useContext, useState, useEffect } from 'react';
 import './PlaceOrder.css';
 import { StoreContext } from '../../context/StoreContext.jsx';
@@ -11,7 +10,6 @@ const Checkout = () => {
     const navigate = useNavigate();
     const { getTotalCartAmount, token, pastery_list, cartItems, url, clearCart } = useContext(StoreContext);
 
-    // ... (All other state and functions like onChangeHandler, validateForm, etc. remain the same) ...
     const [data, setData] = useState({
         firstName: "",
         lastName: "",
@@ -35,7 +33,6 @@ const Checkout = () => {
             navigate('/');
         }
     }, [token, getTotalCartAmount, navigate]);
-
 
     const onChangeHandler = (event) => {
         const { name, value } = event.target;
@@ -78,7 +75,6 @@ const Checkout = () => {
     const isFormValid = () => {
         return Object.values(data).every(field => field.trim() !== "");
     };
-
 
     const onCheckout = async (event) => {
         event.preventDefault();
@@ -134,12 +130,9 @@ const Checkout = () => {
                     name: "MQ-Pastries",
                     description: "Order Payment",
                     order_id: order_id,
-                    // ✅ CHANGED: The handler now passes all necessary details to the /verify page
                     handler: function (paymentResponse) {
-                        console.log("RAZORPAY RESPONSE:", paymentResponse);
                         const { razorpay_payment_id, razorpay_order_id, razorpay_signature } = paymentResponse;
                         navigate(`/verify?orderId=${orderId}&razorpay_payment_id=${razorpay_payment_id}&razorpay_order_id=${razorpay_order_id}&razorpay_signature=${razorpay_signature}`);
-                        // We no longer call clearCart() here. It will be called by the backend after verification.
                     },
                     prefill: {
                         name: `${data.firstName} ${data.lastName}`,
@@ -150,7 +143,6 @@ const Checkout = () => {
                     modal: {
                         ondismiss: function() {
                             toast.error("Payment cancelled. Please try again.");
-                            // You can choose to navigate back to the cart or stay on the page
                             navigate('/cart');
                         }
                     }
@@ -165,11 +157,21 @@ const Checkout = () => {
             toast.error(error.response?.data?.message || "A network error occurred. Please try again.");
         }
     };
-     const parseCartKey = (cartKey) => {
+
+    // ✅ FIXED: Correctly decodes the variation key to prevent price errors
+    const parseCartKey = (cartKey) => {
         if (cartKey && cartKey.includes('_')) {
-            const [itemId, ...variationParts] = cartKey.split('_');
-            const variationKey = variationParts.join('_') || null;
-            return { itemId, variationKey };
+            const parts = cartKey.split('_');
+            const itemId = parts[0];
+            const encodedVariation = parts.slice(1).join('_');
+            try {
+                // Decoding is crucial for matching with the item's variation object
+                const variationKey = decodeURIComponent(encodedVariation);
+                return { itemId, variationKey };
+            } catch (e) {
+                console.error("Failed to decode variation key", e);
+                return { itemId, variationKey: encodedVariation }; // Fallback
+            }
         }
         return { itemId: cartKey, variationKey: null };
     };
@@ -273,16 +275,26 @@ const Checkout = () => {
                         <h3>Order Details</h3>
                         <div className="bill-header">
                             <span>Item</span>
+                            <span>Price</span>
+                            <span>Qty</span>
                             <span>Total</span>
                         </div>
                         {getCartItemsForDisplay().map((item, index) => (
+                            // ✅ FIXED: Invoice row now displays all data correctly
                             <div key={index} className="cart-item-row">
                                 <div className="item-details">
                                     <div className="item-name">{item.name}</div>
-                                    {item.selectedVariation && (<div className="variation-info">({decodeURIComponent(item.selectedVariation)})</div>)}
-                                    <div className="mobile-row">₹{item.displayPrice.toFixed(2)} × {item.quantity}</div>
+                                    {item.selectedVariation && (<div className="variation-info">{item.selectedVariation}</div>)}
                                 </div>
+                                <div className="unit-price">₹{item.displayPrice.toFixed(2)}</div>
+                                <div className="quantity">{item.quantity}</div>
                                 <div className="total-price">₹{item.totalPrice.toFixed(2)}</div>
+                                
+                                {/* Mobile view row */}
+                                <div className="mobile-row">
+                                    <span>{item.name} {item.selectedVariation && `(${item.selectedVariation})`}</span>
+                                    <span>₹{item.displayPrice.toFixed(2)} × {item.quantity} = <strong>₹{item.totalPrice.toFixed(2)}</strong></span>
+                                </div>
                             </div>
                         ))}
                     </div>

@@ -214,8 +214,8 @@
   text-decoration: none;
 }
 
-/* Toast Notification Styles */
-.toast {
+/* ✅ FIXED: Scoped Toast Notification Styles to this component */
+.login-popup .toast {
   position: fixed;
   top: 20px;
   right: 20px;
@@ -230,22 +230,22 @@
   border: 2px solid transparent;
 }
 
-.toast--success {
+.login-popup .toast--success {
   background: linear-gradient(135deg, #10B981, #059669);
   border-color: #059669;
 }
 
-.toast--error {
+.login-popup .toast--error {
   background: linear-gradient(135deg, #EF4444, #DC2626);
   border-color: #DC2626;
 }
 
-.toast--info {
+.login-popup .toast--info {
   background: linear-gradient(135deg, #3B82F6, #2563EB);
   border-color: #2563EB;
 }
 
-.toast__content {
+.login-popup .toast__content {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -254,13 +254,13 @@
   position: relative;
 }
 
-.toast__icon {
+.login-popup .toast__icon {
   font-size: 20px;
   line-height: 1;
   flex-shrink: 0;
 }
 
-.toast__message {
+.login-popup .toast__message {
   flex: 1;
   font-size: 14px;
   font-weight: 500;
@@ -268,7 +268,7 @@
   word-wrap: break-word;
 }
 
-.toast__close {
+.login-popup .toast__close {
   background: rgba(255, 255, 255, 0.2);
   border: none;
   color: #ffffff;
@@ -286,14 +286,15 @@
   line-height: 1;
 }
 
-.toast__close:hover {
+.login-popup .toast__close:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.1);
 }
 
-.toast__close:active {
+.login-popup .toast__close:active {
   transform: scale(0.95);
 }
+
 
 /* Toast Animations */
 @keyframes toastSlideIn {
@@ -334,29 +335,29 @@
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .login-popup__title {
     font-size: 1.5rem;
   }
-  
+
   .login-popup__input,
   .login-popup__submit-btn {
     padding: 0.75rem;
   }
-  
-  .toast {
+
+  .login-popup .toast {
     top: 10px;
     right: 10px;
     left: 10px;
     min-width: auto;
     max-width: none;
   }
-  
-  .toast__content {
+
+  .login-popup .toast__content {
     padding: 12px 16px;
   }
-  
-  .toast__message {
+
+  .login-popup .toast__message {
     font-size: 13px;
   }
 }
@@ -380,11 +381,11 @@
   .login-popup__container {
     border-width: 3px;
   }
-  
+
   .login-popup__input {
     border-width: 3px;
   }
-  
+
   .toast {
     border-width: 3px;
   }
@@ -397,11 +398,11 @@
   .toast {
     animation: none;
   }
-  
+
   .login-popup__spinner {
     animation: none;
   }
-  
+
   .login-popup__submit-btn:hover,
   .login-popup__close-btn:hover,
   .toast__close:hover {

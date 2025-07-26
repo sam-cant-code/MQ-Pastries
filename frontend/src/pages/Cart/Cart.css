@@ -14,6 +14,116 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* --- TOAST NOTIFICATIONS --- */
+.toast-container-bottom {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  max-width: 400px;
+}
+
+.toast-bottom {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 10px;
+  box-shadow: 
+    0 4px 20px rgba(44, 24, 16, 0.15),
+    0 2px 8px rgba(44, 24, 16, 0.1);
+  border-left: 4px solid #28a745;
+  transform: translateX(100%);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 300px;
+  border: 1px solid rgba(139, 69, 19, 0.08);
+}
+
+.toast-bottom.toast-visible {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-success {
+  border-left-color: #28a745;
+}
+
+.toast-error {
+  border-left-color: #dc3545;
+}
+
+.toast-info {
+  border-left-color: #8b4513;
+}
+
+.toast-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.toast-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 14px;
+  color: #ffffff;
+  text-align: center;
+}
+
+.toast-success .toast-icon {
+  background-color: #28a745;
+}
+
+.toast-error .toast-icon {
+  background-color: #dc3545;
+}
+
+.toast-info .toast-icon {
+  background-color: #8b4513;
+}
+
+.toast-message {
+  font-size: 14px;
+  color: #2c1810;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.toast-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #999999;
+  padding: 0;
+  margin-left: 10px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.toast-close-btn:hover {
+  background-color: rgba(139, 69, 19, 0.1);
+  color: #8b4513;
+}
+
+.toast-close-btn:active {
+  transform: scale(0.95);
+}
+
 /* --- CART PAGE --- */
 .cart {
   max-width: 1400px;
@@ -395,7 +505,7 @@ body {
   }
 
   .item-subtitle {
-    font-size: 13px;
+    font-size:13px;
   }
 
   .quantity-price-section {
@@ -446,6 +556,22 @@ body {
 
   .item-total {
     font-size: 16px;
+  }
+
+  /* Mobile toast adjustments */
+  .toast-container-bottom {
+    left: 15px;
+    right: 15px;
+    max-width: none;
+  }
+
+  .toast-bottom {
+    min-width: auto;
+    padding: 14px 16px;
+  }
+
+  .toast-message {
+    font-size: 13px;
   }
 }
 
@@ -533,7 +659,8 @@ body {
 .qty-btn:focus,
 .remove-btn:focus,
 .continue-shopping-btn:focus,
-.checkout-btn:focus {
+.checkout-btn:focus,
+.toast-close-btn:focus {
   outline: 2px solid #8b4513;
   outline-offset: 2px;
 }
