@@ -1,7 +1,7 @@
 class FoodService {
   constructor() {
-    // Use your existing URL structure
-    this.baseURL = 'http://localhost:4000';
+    // Use the environment variable for the backend URL, with a fallback
+    this.baseURL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4000';
   }
 
   getAuthHeaders() {
@@ -50,6 +50,7 @@ class FoodService {
   }
 
   async listFood() {
+    // Note: Listing food might not need auth headers, but if it does, add them.
     const response = await fetch(`${this.baseURL}/api/food/list`);
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || 'Failed to fetch food list');

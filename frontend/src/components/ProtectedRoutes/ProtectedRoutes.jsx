@@ -11,10 +11,13 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     error: null
   });
 
-  // Verify authentication and role with server
+  // Verify authentication and role with the server
   const verifyAuth = async (authToken) => {
     try {
-      const response = await fetch('http://localhost:4000/api/user/verify-auth', { // Update this URL to match your backend
+      // Use the environment variable for the backend URL
+      const url = import.meta.env.VITE_BACKEND_URL;
+      
+      const response = await fetch(`${url}/api/user/verify-auth`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${authToken}`,
@@ -91,7 +94,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
 
   // Check admin access (role verified by server)
   if (adminOnly && authState.userRole !== 'admin') {
-    return <Navigate to="/unauthorized" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return children;
