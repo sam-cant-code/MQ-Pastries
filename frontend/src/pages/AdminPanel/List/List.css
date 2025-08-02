@@ -1,3 +1,4 @@
+/* --- Global Style Variables --- */
 .list-page-wrapper {
   --primary-color: #4a90e2; 
   --primary-hover-color: #357abd;
@@ -250,7 +251,6 @@
   max-width: 180px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
   font-size: 0.8rem;
   color: var(--light-text-color);
 }
@@ -304,6 +304,13 @@
 /* --- Card Grid Styles --- */
 .card-grid-wrapper {
   display: grid;
+  /*
+   * ✅ THIS IS THE FIX FOR THE WHITESPACE
+   * This line creates a responsive grid that automatically fills space.
+   * - "repeat(auto-fill, ...)": Creates as many columns as can fit.
+   * - "minmax(280px, 1fr)": Each column will be at least 280px wide and
+   * will grow to fill any remaining space equally.
+   */
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.5rem;
   padding: 0.5rem 0;
@@ -453,6 +460,7 @@
 .editing-card .admin-card-content {
   background-color: transparent;
 }
+
 
 /* --- Modal Styles --- */
 .modal-overlay {
@@ -682,6 +690,7 @@
   background-color: var(--primary-hover-color);
 }
 
+
 /* --- Loading & No Results --- */
 .loading-container, .no-results {
   text-align: center;
@@ -714,6 +723,7 @@
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
 
 /* --- Responsive Design --- */
 @media (max-width: 1024px) {

@@ -13,7 +13,6 @@ const StoreContextProvider = (props) => {
             }
             return {};
         } catch (error) {
-            console.error("Error loading cart from localStorage:", error);
             return {};
         }
     });
@@ -53,14 +52,11 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem("token");
         localStorage.removeItem("userName");
         localStorage.removeItem("userRole"); // Clean up old data
-        console.log("🧹 Auth data cleared");
     }, []);
 
     // 🔐 Simplified user initialization
     useEffect(() => {
         const initializeUser = async () => {
-            console.log("🔄 Initializing user...");
-            
             const savedToken = localStorage.getItem("token");
             const savedName = localStorage.getItem("userName");
             
@@ -69,19 +65,15 @@ const StoreContextProvider = (props) => {
             
             if (savedToken && savedName && 
                 savedToken !== "null" && savedName !== "null") {
-                console.log("✅ Using cached token and name");
                 setToken(savedToken);
                 setUserName(savedName);
             } else if (savedToken && savedToken !== "null") {
-                console.log("✅ Using cached token");
                 setToken(savedToken);
             } else {
-                console.log("❌ No valid auth data found");
                 clearAuth();
             }
             
             setIsInitializing(false);
-            console.log("🏁 User initialization complete");
         };
 
         initializeUser();
@@ -97,14 +89,11 @@ const StoreContextProvider = (props) => {
             
             if (response.data.success && response.data.data) {
                 setPasteryList(response.data.data);
-                console.log("Food list fetched successfully:", response.data.data.length, "items");
             } else {
-                console.error("Failed to fetch food list:", response.data.message);
                 setError("Failed to load products");
                 setPasteryList([]);
             }
         } catch (error) {
-            console.error("Error fetching food list:", error);
             setError("Network error - unable to load products");
             setPasteryList([]);
         } finally {
@@ -130,7 +119,7 @@ const StoreContextProvider = (props) => {
                 localStorage.setItem("cartItems", JSON.stringify(cartItems));
             }
         } catch (error) {
-            console.error("Error saving cart to localStorage:", error);
+            // Error saving to localStorage
         }
     }, [cartItems]);
 
@@ -164,14 +153,12 @@ const StoreContextProvider = (props) => {
                 setCartItems(response.data.cartData);
             }
         } catch (error) {
-            console.error("Error loading cart from server:", error);
+            // Error loading cart from server
         }
     };
 
     // 🔐 Login function (NO userRole storage)
     const login = async (userData, userToken) => {
-        console.log("🔐 Starting login process:", userData);
-        
         // Store only token and userName - NO role in localStorage
         localStorage.setItem("token", userToken);
         localStorage.setItem("userName", userData.name);
@@ -180,27 +167,16 @@ const StoreContextProvider = (props) => {
         setToken(userToken);
         setUserName(userData.name);
         
-        console.log("✅ Login state updated:", {
-            token: !!userToken,
-            name: userData.name
-            // Role will be verified by ProtectedRoute when needed
-        });
-        
         try {
             // Load user's cart from server
             await fetchCartList(userToken);
         } catch (error) {
-            console.error("Error loading cart after login:", error);
             // Don't fail login if cart loading fails
         }
-        
-        console.log("🎉 Login process complete");
     };
 
     // 🔓 Logout function
     const logout = () => {
-        console.log("🔓 Logging out user");
-        
         setToken("");
         setUserName("");
         setCartItems({});
@@ -211,8 +187,6 @@ const StoreContextProvider = (props) => {
         localStorage.removeItem("userName");
         localStorage.removeItem("userRole"); // Clean up old data
         localStorage.removeItem("cartItems");
-        
-        console.log("✅ Logout complete");
     };
 
     // 🛒 Cart management functions
@@ -269,7 +243,7 @@ const StoreContextProvider = (props) => {
                     }
                 })
             } catch (error) {
-                console.error("Error adding to cart on server:", error);
+                // Error adding to cart on server
             }
         }
     };
@@ -295,7 +269,7 @@ const StoreContextProvider = (props) => {
                     }
                 })
             } catch (error) {
-                console.error("Error removing from cart on server:", error);
+                // Error removing from cart on server
             }
         }
     };
@@ -329,7 +303,7 @@ const StoreContextProvider = (props) => {
                     }
                 })
             } catch (error) {
-                console.error("Error decreasing quantity on server:", error);
+                // Error decreasing quantity on server
             }
         }
     };
@@ -430,7 +404,6 @@ const StoreContextProvider = (props) => {
         setToken,
         userName,
         setUserName,
-        // Removed: userRole, setUserRole, isAdmin, isAuthenticated
         isInitializing,
         login,
         logout,
@@ -459,4 +432,4 @@ const StoreContextProvider = (props) => {
     );
 };
 
-export default StoreContextProvider
+export default StoreContextProvider;
